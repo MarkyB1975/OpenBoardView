@@ -36,8 +36,6 @@ char *file_as_buffer(size_t *buffer_size, const char *utf8_filename) {
 }
 
 #ifndef __APPLE__
-/* These are defined in platform_osx.mm */
-
 char *show_file_picker() {
 	char *path = nullptr;
 	GtkWidget *parent, *dialog;
@@ -91,6 +89,7 @@ char *show_file_picker() {
 
 	return path;
 }
+#endif
 
 #if 0
 // Thanks to http://stackoverflow.com/a/14634033/1447751

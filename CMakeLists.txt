@@ -1,6 +1,6 @@
 project(OpenBoardView)
 
-set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}) 
 
 cmake_minimum_required(VERSION 2.6.2)
 
@@ -14,6 +14,8 @@ set(CPACK_BUNDLE_NAME OpenBoardView)
 set(CPACK_PACKAGE_NAME OpenBoardView)
 set(CPACK_PACKAGE_VERSION 1)
 
+# Warning with CMake 3.0 on OS X
+set(CMAKE_MACOSX_RPATH ON)
 
 set(CMAKE_MODULE_PATH 
         ${CMAKE_MODULE_PATH} 
