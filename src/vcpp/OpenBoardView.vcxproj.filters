@@ -72,6 +72,9 @@
     <Filter Include="zlib">
       <UniqueIdentifier>{f118c824-66f3-47df-9172-189a4b988b08}</UniqueIdentifier>
     </Filter>
+    <Filter Include="zlib">
+      <UniqueIdentifier>{f118c824-66f3-47df-9172-189a4b988b08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\asset\brd.ico">
