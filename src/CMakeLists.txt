@@ -1,7 +1,14 @@
 ## gl3w ##
-add_library(gl3w SHARED gl3w/src/gl3w.c)
-target_include_directories(gl3w PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/gl3w/include)
-install(TARGETS gl3w DESTINATION ${INSTALL_LIBRARY_DIR})
+execute_process(
+	COMMAND git submodule update --init src/gl3w
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
+# Download include/GL/glcorearb.h & generate src/gl3w.c and include/GL/gl3w.h
+execute_process(
+	COMMAND ./gl3w_gen.py
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/gl3w
+)
+add_subdirectory(gl3w)
 
 ## imgui ##
 
