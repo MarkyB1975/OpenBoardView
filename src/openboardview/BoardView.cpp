@@ -1072,6 +1072,7 @@ inline void BoardView::DrawParts(ImDrawList *draw) {
 		 distance = sqrt( (max_x -min_x)*(max_x -min_x) + (max_y -min_y)*(max_y -min_y) );
 
 	 float pin_radius = m_pinDiameter /2.0f;
+		//float pin_radius = 10.0f;
 
 	 if ((pincount < 4)&&(part->name[0] != 'U')&&(part->name[0] != 'Q')) {
 
@@ -1118,6 +1119,7 @@ inline void BoardView::DrawParts(ImDrawList *draw) {
 		 //0402 cap/resistor
 		 pin_radius = 10;
 		 for (auto pin : part->pins) { pin->diameter = pin_radius *0.05; }
+
 	 } 
 	 }
 
