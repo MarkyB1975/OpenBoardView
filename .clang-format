@@ -1,6 +1,10 @@
 BasedOnStyle: LLVM
 PointerBindsToType: false
-AllowShortFunctionsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+IndentCaseLabels: true
 BreakBeforeBraces: Attach
 BreakConstructorInitializersBeforeComma: true
 AlwaysBreakTemplateDeclarations: true
