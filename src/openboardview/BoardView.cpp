@@ -88,12 +88,11 @@ void BoardView::Update() {
   char *preset_filename = NULL;
 
 
-	//if ((ImGui::IsKeyDown(SDLK_RCTRL)||ImGui::IsKeyDown(SDLK_LCTRL)) && ImGui::IsKeyPressed('O', false)) {
 	/**
 	 * ** FIXME
 	 * This should be handled in the keyboard section, not here
 	 *
-	if (ImGui::IsKeyDown(17) && ImGui::IsKeyPressed('O', false)) {
+	if ((ImGui::IsKeyDown(SDLK_RCTRL)||ImGui::IsKeyDown(SDLK_LCTRL)) && ImGui::IsKeyPressed('O', false)) {
 		open_file = true;
 		// the dialog will likely eat our WM_KEYUP message for CTRL and O:
 		ImGuiIO &io = ImGui::GetIO();
@@ -224,17 +223,10 @@ void BoardView::Update() {
 			}
 			ImGui::Text("Component #1");
 
-//			ImGui::Dummy(ImVec2(200,1));
 			if (ImGui::InputText("##search", m_search, 128, ImGuiInputTextFlags_CharsNoBlank)) {
 				FindComponent(m_search);
-			}
-//			ImGui::SameLine();
-//			if (ImGui::SmallButton("X")) {
-//				m_search[0] = '\0';
-//			};
 			const char *first_button = m_search;
 
-			//if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0))) {
 			if (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) {
 				ImGui::SetKeyboardFocusHere(-1);
 			}
@@ -245,7 +237,6 @@ void BoardView::Update() {
 				if (utf8casestr(part.name, m_search)) {
 					if (ImGui::SmallButton(part.name)) {
 						FindComponent(part.name);
-				//		ImGui::CloseCurrentPopup();
 						snprintf(m_search, sizeof(m_search),"%s", part.name);
 						first_button = part.name;
 					}
@@ -259,20 +250,10 @@ void BoardView::Update() {
 
 			ImGui::NextColumn();
 			ImGui::Text("Component #2");
-			//ImGui::Dummy(ImVec2(200,1));
 			if (ImGui::InputText("##search2", m_search2, 128)) {
 				FindComponent(m_search2);
 			}
-//			ImGui::SameLine();
-//			if (ImGui::SmallButton("X")) {
-//				m_search2[0] = '\0';
-//			};
 			const char *first_button2 = m_search2;
-
-		//	if (ImGui::IsMouseClicked(0)) {
-		//	  	ImGui::SetKeyboardFocusHere(-1);
-		//	}
-
 			int buttons_left2 = 10;
 			for (int i = 0; buttons_left2 && i < m_file->num_parts; i++) {
 				const BRDPart &part2 = m_file->parts[i];
@@ -293,20 +274,10 @@ void BoardView::Update() {
 
 			ImGui::NextColumn();
 			ImGui::Text("Component #3");
-			//ImGui::Dummy(ImVec2(200,1));
 			if (ImGui::InputText("##search3", m_search3, 128)) {
 				FindComponent(m_search3);
 			}
-//			ImGui::SameLine();
-//			if (ImGui::SmallButton("X")) {
-//				m_search3[0] = '\0';
-//			};
 			const char *first_button3 = m_search3;
-
-		//	if (ImGui::IsMouseClicked(0)) {
-		//	  	ImGui::SetKeyboardFocusHere(-1);
-		//	}
-
 			int buttons_left3 = 10;
 			for (int i = 0; buttons_left3 && i < m_file->num_parts; i++) {
 				const BRDPart &part3 = m_file->parts[i];
@@ -316,7 +287,6 @@ void BoardView::Update() {
 						FindComponent(part3.name);
 						snprintf(m_search3, sizeof(m_search3),"%s", part3.name);
 						first_button3 = part3.name;
-				//		ImGui::CloseCurrentPopup();
 					}
 					if (buttons_left3 == 10) {
 						first_button3 = part3.name;
@@ -403,6 +373,7 @@ void BoardView::Update() {
 			    "SOFTWARE.");
 			ImGui::EndPopup();
 		}
+
 		if (ImGui::BeginPopupModal("Error opening file")) {
 			ImGui::Text("There was an error opening the file: %s", m_lastFileOpenName);
 			// TODO: error details? -- would need the loader to say what's wrong.
@@ -483,8 +454,9 @@ void BoardView::Update() {
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
-
 	ImGui::PopStyleVar();
+
+	} // main menu bar
 }
 
 
@@ -585,6 +557,7 @@ void BoardView::HandleInput() {
 				min_dist *= min_dist; // all distance squared
 				Pin *selection = nullptr;
 				for (auto &pin : m_board->Pins()) {
+					if (ComponentIsVisible(pin->component)) {
 					float dx = pin->position.x - pos.x;
 					float dy = pin->position.y - pos.y;
 					float dist = dx * dx + dy * dy;
@@ -593,8 +566,10 @@ void BoardView::HandleInput() {
 						min_dist = dist;
 					}
 				}
+				}
 				m_pinSelected = selection;
 				m_needsRedraw = true;
+
 			}
 			m_draggingLastFrame = false;
 		}
