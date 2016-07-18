@@ -1,13 +1,10 @@
 #pragma once
 
-
-#include "history.h"
 #include "Board.h"
+#include "history.h"
 #include "imgui/imgui.h"
 #include <stdint.h>
 #include <vector>
-
-
 
 struct BRDPart;
 struct BRDFile;
@@ -20,9 +17,7 @@ struct BitVec {
 	~BitVec();
 	void Resize(uint32_t new_size);
 
-	bool operator[](uint32_t index) {
-		return 0 != (m_bits[index >> 5] & (1u << (index & 0x1f)));
-	}
+	bool operator[](uint32_t index) { return 0 != (m_bits[index >> 5] & (1u << (index & 0x1f))); }
 
 	void Set(uint32_t index, bool val) {
 		uint32_t &slot = m_bits[index >> 5];
@@ -89,7 +84,6 @@ struct BoardView {
 	void DrawHex( ImDrawList *draw, ImVec2 c, double r, uint32_t color );
 	void DrawBox( ImDrawList *draw, ImVec2 c, double r, uint32_t color );
 
-
 	Pin *m_pinSelected = nullptr;
 	vector<Pin *> m_pinHighlighted;
 	vector<Component *> m_partHighlighted;
@@ -106,7 +100,8 @@ struct BoardView {
   float m_mx; // board *maxiumum* size? scaled relative to m_boardwidth/height
 	float m_my;
 	float m_scale = 1.0f;
-  float m_lastWidth; // previously checked on-screen window size; use to redraw when window is resized?
+	float m_lastWidth; // previously checked on-screen window size; use to redraw
+	                   // when window is resized?
 	float m_lastHeight;
   int m_rotation; // set to 0 for original orientation [0-4]
 	int m_current_side;
@@ -116,7 +111,8 @@ struct BoardView {
 	ColorScheme m_colors;
 
 	// TODO: save settings to disk
-  // pinDiameter: diameter for all pins.  Unit scale: 1 = 0.025mm, boards are done in "thou" (1/1000" = 0.0254mm)
+	// pinDiameter: diameter for all pins.  Unit scale: 1 = 0.025mm, boards are
+	// done in "thou" (1/1000" = 0.0254mm)
 	int m_pinDiameter = 20;
 	bool m_flipVertically = true;
 
@@ -160,7 +156,7 @@ struct BoardView {
 
 	// Returns true if the part is shown on the currently displayed side of the
 	// board.
-	bool ElementIsVisible(const BoardElement *part);
+	bool ComponentIsVisible(const Component *part);
 	bool IsVisibleScreen(float x, float y, float radius, const ImGuiIO &io);
 	// Returns true if the circle described by screen coordinates x, y, and radius
 	// is visible in the

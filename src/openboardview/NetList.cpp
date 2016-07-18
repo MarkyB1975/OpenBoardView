@@ -6,8 +6,7 @@ NetList::NetList(TcharStringCallback cbNetSelected) {
 	cbNetSelected_ = cbNetSelected;
 }
 
-NetList::~NetList() {
-}
+NetList::~NetList() {}
 
 void NetList::Draw(const char *title, bool *p_open, Board *board) {
 	// TODO: export / fix dimensions & behaviour

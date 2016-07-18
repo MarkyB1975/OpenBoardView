@@ -6,8 +6,7 @@ PartList::PartList(TcharStringCallback cbNetSelected) {
 	cbNetSelected_ = cbNetSelected;
 }
 
-PartList::~PartList() {
-}
+PartList::~PartList() {}
 
 void PartList::Draw(const char *title, bool *p_open, Board *board) {
 	// TODO: export / fix dimensions & behaviour

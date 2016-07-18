@@ -40,12 +40,10 @@ enum EBoardSide {
 
 // Checking whether str `prefix` is a prefix of str `base`.
 inline static bool is_prefix(string prefix, string base) {
-	if (prefix.size() > base.size())
-		return false;
+	if (prefix.size() > base.size()) return false;
 
 	auto res = mismatch(prefix.begin(), prefix.end(), base.begin());
-	if (res.first == prefix.end())
-		return true;
+	if (res.first == prefix.end()) return true;
 
 	return false;
 }
@@ -93,9 +91,7 @@ struct Net : BoardElement {
 
 	vector<Pin *> pins;
 
-	string UniqueId() const {
-		return kBoardNetPrefix + name;
-	}
+	string UniqueId() const { return kBoardNetPrefix + name; }
 };
 
 // Any observeable contact (nails, component pins).
@@ -127,9 +123,7 @@ struct Pin : BoardElement {
 	// Contact belonging to this component (pin), nullptr if nail.
 	Component *component;
 
-	string UniqueId() const {
-    return kBoardPinPrefix + number;
-	}
+	string UniqueId() const { return kBoardPinPrefix + number; }
 };
 
 // A component on the board having multiple Pins.
@@ -159,38 +153,28 @@ struct Component : BoardElement {
 	// Mount type as readable string.
 	string mount_type_str() {
 		switch (mount_type) {
-		case Component::kMountTypeSMD:
-			return "SMD";
-		case Component::kMountTypeDIP:
-			return "DIP";
-		default:
-			return "UNKNOWN";
+			case Component::kMountTypeSMD: return "SMD";
+			case Component::kMountTypeDIP: return "DIP";
+			default: return "UNKNOWN";
 		}
 	}
 
 	// true if component is not representing a real/physical component.
-	bool is_dummy() {
-		return component_type == kComponentTypeDummy;
-	}
+	bool is_dummy() { return component_type == kComponentTypeDummy; }
 
-	string UniqueId() const {
-		return kBoardComponentPrefix + name;
-	}
+	string UniqueId() const { return kBoardComponentPrefix + name; }
 };
 
 class Board {
   public:
 	enum EBoardType { kBoardTypeUnknown = 0, kBoardTypeBRD = 0x01, kBoardTypeBDV = 0x02 };
 
-	virtual ~Board() {
-	}
+	virtual ~Board() {}
 
 	virtual SharedVector<Net> &Nets() = 0;
 	virtual SharedVector<Component> &Components() = 0;
 	virtual SharedVector<Pin> &Pins() = 0;
 	virtual SharedVector<Point> &OutlinePoints() = 0;
 
-	EBoardType BoardType() {
-		return kBoardTypeUnknown;
-	}
+	EBoardType BoardType() { return kBoardTypeUnknown; }
 };
