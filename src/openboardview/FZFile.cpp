@@ -146,20 +146,20 @@ char *FZFile::decompress(char *file_buf, size_t buffer_size, size_t &output_size
 #define OUTLINE_MARGIN 20
 void FZFile::gen_outline() {
 	// Determine board outline
-	int minx = std::min_element(pins.begin(), pins.end(),
-	                            [](BRDPin a, BRDPin b) { return a.pos.x < b.pos.x; })
+	int minx = std::min_element(
+	               pins.begin(), pins.end(), [](BRDPin a, BRDPin b) { return a.pos.x < b.pos.x; })
 	               ->pos.x -
 	           OUTLINE_MARGIN;
-	int maxx = std::max_element(pins.begin(), pins.end(),
-	                            [](BRDPin a, BRDPin b) { return a.pos.x < b.pos.x; })
+	int maxx = std::max_element(
+	               pins.begin(), pins.end(), [](BRDPin a, BRDPin b) { return a.pos.x < b.pos.x; })
 	               ->pos.x +
 	           OUTLINE_MARGIN;
-	int miny = std::min_element(pins.begin(), pins.end(),
-	                            [](BRDPin a, BRDPin b) { return a.pos.y < b.pos.y; })
+	int miny = std::min_element(
+	               pins.begin(), pins.end(), [](BRDPin a, BRDPin b) { return a.pos.y < b.pos.y; })
 	               ->pos.y -
 	           OUTLINE_MARGIN;
-	int maxy = std::max_element(pins.begin(), pins.end(),
-	                            [](BRDPin a, BRDPin b) { return a.pos.y < b.pos.y; })
+	int maxy = std::max_element(
+	               pins.begin(), pins.end(), [](BRDPin a, BRDPin b) { return a.pos.y < b.pos.y; })
 	               ->pos.y +
 	           OUTLINE_MARGIN;
 	format.push_back({minx, miny});
@@ -211,7 +211,8 @@ FZFile::FZFile(const char *buf, size_t buffer_size) {
 	ENSURE(content != nullptr);
 	ENSURE(content_size > 0);
 	content =
-	    FZFile::decompress(file_buf + 4, content_size,
+	    FZFile::decompress(file_buf + 4,
+	                       content_size,
 	                       content_size); // and decompress zlib content data, discard first 4 bytes
 	ENSURE(content != nullptr);
 	ENSURE(content_size > 0);
