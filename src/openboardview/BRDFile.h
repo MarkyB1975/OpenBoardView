@@ -1,17 +1,15 @@
 #pragma once
 
 #include <stdlib.h>
-#include <vector>
 #include <string>
+#include <vector>
 
 #define LOAD_INT(var) var = strtol(p, &p, 10)
 #define LOAD_DOUBLE(var) var = strtod(p, &p);
 #define LOAD_STR(var)                                                                              \
-	while (isspace((uint8_t)*p))                                                                   \
-		++p;                                                                                       \
+	while (isspace((uint8_t)*p)) ++p;                                                              \
 	s = p;                                                                                         \
-	while (!isspace((uint8_t)*p))                                                                  \
-		++p;                                                                                       \
+	while (!isspace((uint8_t)*p)) ++p;                                                             \
 	*p++ = 0;                                                                                      \
 	var = fix_to_utf8(s, &arena, arena_end);
 
@@ -36,7 +34,8 @@ struct BRDPin {
 
     bool operator < (const BRDPin& p) const // For sorting the vector
     {
-        return part == p.part ? (std::string(snum) < std::string(p.snum)) : (part < p.part); // sort by part number then pin number
+		return part == p.part ? (std::string(snum) < std::string(p.snum))
+		                      : (part < p.part); // sort by part number then pin number
     }
 };
 
@@ -64,9 +63,7 @@ struct BRDFile {
 
 	BRDFile(const char *buf, size_t buffer_size);
 	BRDFile() {};
-	~BRDFile() {
-		free(file_buf);
-	}
+	~BRDFile() { free(file_buf); }
 };
 
 char **stringfile(char *buffer);
