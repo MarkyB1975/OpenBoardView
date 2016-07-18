@@ -215,7 +215,8 @@ void BoardView::Update() {
 			ImGui::EndPopup();
 		}
 
-		if (ImGui::BeginPopupModal("Search for Component", nullptr,
+		if (ImGui::BeginPopupModal("Search for Component",
+		                           nullptr,
 		                           ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
 		                               ImGuiWindowFlags_NoSavedSettings |
 		                               ImGuiWindowFlags_ShowBorders)) {
@@ -448,18 +449,27 @@ void BoardView::Update() {
 	if (m_file && m_board && m_pinSelected) {
 		auto pin = m_pinSelected;
     ImGui::Text("Part: %s   Pin: %s   Net: %s   Probe: %d   (%s.)",
-        pin->component->name.c_str(), pin->number.c_str(), pin->net->name.c_str(),
-		            pin->net->number, pin->component->mount_type_str().c_str());
+		            pin->component->name.c_str(),
+		            pin->number.c_str(),
+		            pin->net->name.c_str(),
+		            pin->net->number,
+		            pin->component->mount_type_str().c_str());
   } else {
         ImVec2 spos = ImGui::GetMousePos();
         ImVec2 pos  = ScreenToCoord(spos.x, spos.y);
 		if (showFPS == true)
 			ImGui::Text("FPS: %0.0f Position: %0.3f\", %0.3f\" (%0.2f, %0.2fmm)",
-			            ImGui::GetIO().Framerate, pos.x / 1000, pos.y / 1000, pos.x * 0.0254,
+			            ImGui::GetIO().Framerate,
+			            pos.x / 1000,
+			            pos.y / 1000,
+			            pos.x * 0.0254,
 			            pos.y * 0.0254);
 		else
-			ImGui::Text("Position: %0.3f\", %0.3f\" (%0.2f, %0.2fmm)", pos.x / 1000, pos.y / 1000,
-			            pos.x * 0.0254, pos.y * 0.0254);
+			ImGui::Text("Position: %0.3f\", %0.3f\" (%0.2f, %0.2fmm)",
+			            pos.x / 1000,
+			            pos.y / 1000,
+			            pos.x * 0.0254,
+			            pos.y * 0.0254);
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -894,19 +904,20 @@ inline void BoardView::DrawPins(ImDrawList *draw) {
 					if (psz > 3)
 						draw->AddCircleFilled(ImVec2(pos.x, pos.y), psz, color, segments);
 					else if (psz > threshold)
-						draw->AddRect(ImVec2(pos.x - 1, pos.y - 1), ImVec2(pos.x + 1, pos.y + 1),
-						              color);
+						draw->AddRect(
+						    ImVec2(pos.x - 1, pos.y - 1), ImVec2(pos.x + 1, pos.y + 1), color);
 				break;
 			default:
 					if (psz > 3)
 						draw->AddCircle(ImVec2(pos.x, pos.y), psz, color, segments);
 					else if (psz > threshold)
-						draw->AddRect(ImVec2(pos.x - 1, pos.y - 1), ImVec2(pos.x + 1, pos.y + 1),
-						              color);
+						draw->AddRect(
+						    ImVec2(pos.x - 1, pos.y - 1), ImVec2(pos.x + 1, pos.y + 1), color);
 			}
 
 			//				if ( color == m_colors.pinHighlightSameNet ) {
-			//					draw->AddCircle(ImVec2(pos.x, pos.y), psz +1.25, 0x4F00FF00, segments
+			//					draw->AddCircle(ImVec2(pos.x, pos.y), psz +1.25, 0x4F00FF00,
+			// segments
 			//);
 			//				}
 
@@ -919,7 +930,8 @@ inline void BoardView::DrawPins(ImDrawList *draw) {
 				draw->AddRectFilled(
 				    ImVec2(pos_adj.x - 2.0f, pos_adj.y - 1.0f),
 				    ImVec2(pos_adj.x + text_size.x + 2.0f, pos_adj.y + text_size.y + 1.0f),
-				    m_colors.backgroundColor, 3.0f);
+				    m_colors.backgroundColor,
+				    3.0f);
 				draw->ChannelsSetCurrent(kChannelText);
 				draw->AddText(pos_adj, text_color, pin_number);
 			}
@@ -1107,16 +1119,19 @@ inline void BoardView::DrawParts(ImDrawList *draw) {
 
 				mpx = dx/2 + part->pins[0]->position.x;
 				mpy = dy/2 + part->pins[0]->position.y;
-				VHRotateV(&mpx, &mpy, dx / 2 + part->pins[0]->position.x,
-				          dy / 2 + part->pins[0]->position.y, angle);
+				VHRotateV(&mpx,
+				          &mpy,
+				          dx / 2 + part->pins[0]->position.x,
+				          dy / 2 + part->pins[0]->position.y,
+				          angle);
 				mp = CoordToScreen(mpx, mpy);
 				// for the round pin representations, choose how many circle segments
 				// need based on the pin size
 				segments = trunc(distance);
 				if (segments < 8) segments = 8;
 				if (segments > 36) segments = 36;
-				draw->AddCircle(mp, (distance / 3) * m_scale, ImColor(210, 210, 210, 128),
-				                segments);
+				draw->AddCircle(
+				    mp, (distance / 3) * m_scale, ImColor(210, 210, 210, 128), segments);
 
 			} else { 
 				armx = army = pin_radius; 
@@ -1188,7 +1203,8 @@ inline void BoardView::DrawParts(ImDrawList *draw) {
 
 				 free(hull);
 			 } else {
-					fprintf(stderr, "ERROR: Cannot allocate memory for convex hull generation (%s)",
+					fprintf(stderr,
+					        "ERROR: Cannot allocate memory for convex hull generation (%s)",
 					        strerror(errno));
 					draw->AddRect(min, max, color);
 					 rendered = 1;
@@ -1221,7 +1237,8 @@ inline void BoardView::DrawParts(ImDrawList *draw) {
 			draw->ChannelsSetCurrent(kChannelPolylines);
 			draw->AddRectFilled(ImVec2(pos.x - 2.0f, pos.y - 1.0f),
 			                    ImVec2(pos.x + text_size.x + 2.0f, pos.y + text_size.y + 1.0f),
-			                    m_colors.backgroundColor, 3.0f);
+			                    m_colors.backgroundColor,
+			                    3.0f);
 			draw->ChannelsSetCurrent(kChannelText);
 			draw->AddText(pos, m_colors.partTextColor, part->name.c_str());
 		}

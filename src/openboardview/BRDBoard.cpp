@@ -195,7 +195,8 @@ BRDBoard::BRDBoard(const BRDFile *const boardFile)
 		}
 
 		// remove all dummy components from vector, add our official dummy
-		components_.erase(remove_if(begin(components_), end(components_),
+		components_.erase(remove_if(begin(components_),
+		                            end(components_),
 		                            [](shared_ptr<Component> &comp) { return comp->is_dummy(); }),
 		                  end(components_));
 
@@ -208,7 +209,8 @@ BRDBoard::BRDBoard(const BRDFile *const boardFile)
 	}
 
 	// Sort components by name
-	sort(begin(components_), end(components_),
+	sort(begin(components_),
+	     end(components_),
 	     [](shared_ptr<Component> &lhs, shared_ptr<Component> &rhs) {
 		     return lhs->name < rhs->name;
 		 });
