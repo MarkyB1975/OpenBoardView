@@ -34,8 +34,7 @@ struct BRDPin {
 
     bool operator < (const BRDPin& p) const // For sorting the vector
     {
-		return part == p.part ? (std::string(snum) < std::string(p.snum))
-		                      : (part < p.part); // sort by part number then pin number
+		return part == p.part ? (std::string(snum) < std::string(p.snum)) : (part < p.part); // sort by part number then pin number
     }
 };
 
@@ -63,7 +62,9 @@ struct BRDFile {
 
 	BRDFile(const char *buf, size_t buffer_size);
 	BRDFile() {};
-	~BRDFile() { free(file_buf); }
+	~BRDFile() {
+		free(file_buf);
+	}
 };
 
 char **stringfile(char *buffer);
