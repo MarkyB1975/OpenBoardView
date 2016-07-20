@@ -84,6 +84,7 @@ void BoardView::SetFZKey( char *keytext ) {
 	p = keytext;
 	limit = keytext +strlen(keytext);
 
+		if ((limit - p) > 440) {
 		/*
 		 * we *assume* that the key is correctly formatted in the configuration file
 		 * as such it should be like FZKey = 0x12345678, 0xabcd1234, ...
@@ -91,7 +92,7 @@ void BoardView::SetFZKey( char *keytext ) {
 		 * If your key is incorrectly formatted, or incorrect, it'll cause OBV to 
 		 * likely crash / segfault (for now).
 		 */
-		while (p && (p < limit)) {
+			while (p && (p < limit) && ki < 44) {
 
 		// locate the start of the u32 hex value
 		while ((p < limit) &&(*p != '0')) p++;
@@ -103,6 +104,7 @@ void BoardView::SetFZKey( char *keytext ) {
 			p = ep;
 	}
 	}
+}
 }
 
 /** UPDATE Logic region
