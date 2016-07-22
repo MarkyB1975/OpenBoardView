@@ -177,96 +177,61 @@ void BoardView::SetFZKey( char *keytext ) {
 }
 }
 
-/** UPDATE Logic region
- *
- *
- *
- *
- */
-void BoardView::Update() {
-	bool open_file = false;
-	//ImGuiIO &io = ImGui::GetIO();
-  char *preset_filename = NULL;
-	float menu_height = 0;
-	ImGuiIO &io      = ImGui::GetIO();
-
-	/**
-	 * ** FIXME
-	 * This should be handled in the keyboard section, not here
-	 */
-	 if ((io.KeyCtrl) && ImGui::IsKeyPressed(SDLK_o)) {
-		open_file = true;
-		// the dialog will likely eat our WM_KEYUP message for CTRL and O:
-		io.KeysDown[SDL_SCANCODE_RCTRL]  = false;
-		io.KeysDown[SDL_SCANCODE_LCTRL]  = false;
-		io.KeysDown[SDLK_o] = false;
-	}
-
-	 if ((io.KeyCtrl) && ImGui::IsKeyPressed(SDLK_q)) {
-		 m_wantsQuit = true;
-	}
-
-	if (ImGui::BeginMainMenuBar()) {
-		menu_height = ImGui::GetWindowHeight();
-		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("Open", "Ctrl+O")) {
-				open_file = true;
+void BoardView::HelpAbout(void) {
+	if (ImGui::BeginPopupModal("About", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+		if (m_showHelpAbout) m_showHelpAbout = false;
+		ImGui::Text("OpenFlex Board View");
+		ImGui::Text("https://github.com/inflex/OpenBoardView");
+		if (ImGui::Button("Close") || ImGui::IsKeyPressed(SDLK_ESCAPE)) {
+			ImGui::CloseCurrentPopup();
 			}
-
-		/// Generate file history - PLD20160618-2028
+		ImGui::Indent();
+		ImGui::Text("License info");
+		ImGui::Unindent();
 		ImGui::Separator();
-		{ 
-			int i;
-				for (i = 0; i < fhistory.count; i++) {
-					if (ImGui::MenuItem(fhistory.Trim_filename(fhistory.history[i], 2))) {
-					open_file = true;
-						preset_filename = fhistory.history[i];
-				}
-			}
-		}
+		ImGui::Text("OpenBoardView is MIT Licensed");
+		ImGui::Text("Copyright (c) 2016 Paul Daniels (Inflex Additions)");
+		ImGui::Text("Copyright (c) 2016 Chloridite");
+		ImGui::Spacing();
+		ImGui::Text("ImGui is MIT Licensed");
+		ImGui::Text("Copyright (c) 2014-2015 Omar Cornut and ImGui contributors");
 		ImGui::Separator();
-
-			if (ImGui::MenuItem("Quit")) {
-				m_wantsQuit = true;
+		ImGui::Text("The MIT License");
+		ImGui::TextWrapped(
+		    "Permission is hereby granted, free of charge, to any person "
+		    "obtaining a copy "
+		    "of this software and associated documentation files (the "
+		    "\"Software\"), to deal "
+		    "in the Software without restriction, including without limitation "
+		    "the rights "
+		    "to use, copy, modify, merge, publish, distribute, sublicense, "
+		    "and/or sell "
+		    "copies of the Software, and to permit persons to whom the Software "
+		    "is "
+		    "furnished to do so, subject to the following conditions: ");
+		ImGui::TextWrapped(
+		    "The above copyright notice and this permission "
+		    "notice shall be included in all "
+		    "copies or substantial portions of the Software.");
+		ImGui::TextWrapped(
+		    "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY "
+		    "OF ANY KIND, EXPRESS OR "
+		    "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES "
+		    "OF MERCHANTABILITY, "
+		    "FITNESS FOR A PARTICULAR PURPOSE AND "
+		    "NONINFRINGEMENT. IN NO EVENT SHALL THE "
+		    "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY "
+		    "CLAIM, DAMAGES OR OTHER "
+		    "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR "
+		    "OTHERWISE, ARISING FROM, "
+		    "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE "
+		    "OR OTHER DEALINGS IN THE "
+		    "SOFTWARE.");
+		ImGui::EndPopup();
 			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("View")) {
-			if (ImGui::MenuItem("Flip board", "<Space>")) {
-				FlipBoard();
-			}
-      if (ImGui::MenuItem("Rotate CW")) {
-				Rotate(1);
-			}
-      if (ImGui::MenuItem("Rotate CCW")) {
-				Rotate(-1);
-			}
-		if (ImGui::MenuItem("Reset View", "5")) { // actually want this to be numpad 5
-        CenterView();
-      }
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Windows")) {
-			if (ImGui::MenuItem("Net List", "l")) {
-				m_showNetList = m_showNetList ? false : true;
-			}
-			if (ImGui::MenuItem("Part List", "k")) {
-				m_showPartList = m_showPartList ? false : true;
-			}
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Help##1")) {
-			if (ImGui::MenuItem("Controls")) {
-				m_showHelpControls = true;
-			}
-			if (ImGui::MenuItem("About")) {
-				m_showHelpAbout = true;
-			}
-			ImGui::EndMenu();
 		}
 
+void BoardView::HelpControls(void) {
 		if (ImGui::BeginPopupModal("Controls", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
 			if (m_showHelpControls) m_showHelpControls = false;
 			ImGui::Text("KEYBOARD CONTROLS");
@@ -365,171 +330,13 @@ void BoardView::Update() {
 
 			ImGui::EndPopup();
 		}
-
-		if (ImGui::BeginPopupModal("About", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-			if (m_showHelpAbout) m_showHelpAbout = false;
-			ImGui::Text("OpenFlex Board View");
-			ImGui::Text("https://github.com/inflex/OpenBoardView");
-			if (ImGui::Button("Close") || ImGui::IsKeyPressed(SDLK_ESCAPE)) {
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::Indent();
-			ImGui::Text("License info");
-			ImGui::Unindent();
-			ImGui::Separator();
-			ImGui::Text("OpenBoardView is MIT Licensed");
-			ImGui::Text("Copyright (c) 2016 Paul Daniels (Inflex Additions)");
-			ImGui::Text("Copyright (c) 2016 Chloridite");
-			ImGui::Spacing();
-			ImGui::Text("ImGui is MIT Licensed");
-			ImGui::Text("Copyright (c) 2014-2015 Omar Cornut and ImGui contributors");
-			ImGui::Separator();
-			ImGui::Text("The MIT License");
-			ImGui::TextWrapped(
-			    "Permission is hereby granted, free of charge, to any person "
-			    "obtaining a copy "
-			    "of this software and associated documentation files (the "
-			    "\"Software\"), to deal "
-			    "in the Software without restriction, including without limitation "
-			    "the rights "
-			    "to use, copy, modify, merge, publish, distribute, sublicense, "
-			    "and/or sell "
-			    "copies of the Software, and to permit persons to whom the Software "
-			    "is "
-			    "furnished to do so, subject to the following conditions: ");
-			ImGui::TextWrapped(
-			    "The above copyright notice and this permission "
-			    "notice shall be included in all "
-			    "copies or substantial portions of the Software.");
-			ImGui::TextWrapped(
-			    "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY "
-			    "OF ANY KIND, EXPRESS OR "
-			    "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES "
-			    "OF MERCHANTABILITY, "
-			    "FITNESS FOR A PARTICULAR PURPOSE AND "
-			    "NONINFRINGEMENT. IN NO EVENT SHALL THE "
-			    "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY "
-			    "CLAIM, DAMAGES OR OTHER "
-			    "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR "
-			    "OTHERWISE, ARISING FROM, "
-			    "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE "
-			    "OR OTHER DEALINGS IN THE "
-			    "SOFTWARE.");
-			ImGui::EndPopup();
 		}
 
-		ImGui::SameLine();
-		if (ImGui::Button("Net")) {
-			m_showNetfilterSearch = true;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Component")) {
-			m_showComponentSearch = true;
-		}
-		ImGui::SameLine();
-		ImGui::Dummy(ImVec2(60, 1));
-
-		ImGui::SameLine();
-		if (ImGui::Button(" + ")) {
-			Zoom(m_lastWidth / 2, m_lastHeight / 2, +zoomFactor);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button(" - ")) {
-			Zoom(m_lastWidth / 2, m_lastHeight / 2, -zoomFactor);
-		}
-		ImGui::SameLine();
-		ImGui::Dummy(ImVec2(20, 1));
-		ImGui::SameLine();
-		if (ImGui::Button("+")) {
-			Zoom(m_lastWidth / 2, m_lastHeight / 2, +zoomFactor / zoomModifier);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("-")) {
-			Zoom(m_lastWidth / 2, m_lastHeight / 2, -zoomFactor / zoomModifier);
-		}
-
-		ImGui::SameLine();
-		ImGui::Dummy(ImVec2(20, 1));
-		ImGui::SameLine();
-		if (ImGui::Button(" < ")) {
-			Rotate(-1);
-		}
-
-		ImGui::SameLine();
-		if (ImGui::Button(" ^ ")) {
-			FlipBoard();
-		}
-
-		ImGui::SameLine();
-		if (ImGui::Button(" > ")) {
-			Rotate(1);
-		}
-
-		ImGui::SameLine();
-		if (ImGui::Button(" X ")) {
-			CenterView();
-		}
-
-		if (m_showHelpAbout) {
-			ImGui::OpenPopup("About");
-		}
-		if (m_showHelpControls) {
-			ImGui::OpenPopup("Controls");
-		}
-		if (m_showNetfilterSearch) {
-			ImGui::OpenPopup("Search for Net");
-		}
-		if (m_showComponentSearch && m_file) {
-			ImGui::OpenPopup("Search for Component");
-		}
-		if (m_lastFileOpenWasInvalid) {
-			ImGui::OpenPopup("Error opening file");
-			m_lastFileOpenWasInvalid = false;
-		}
-		if (ImGui::BeginPopupModal("Search for Net", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-			if (m_showNetfilterSearch) {
-				m_showNetfilterSearch = false;
-			}
-			if (ImGui::InputText("##search", m_search, 128)) {
-				SetNetFilter(m_search);
-			}
-			const char *first_button = m_search;
-			if (ImGui::IsItemHovered() ||
-			    (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
-				ImGui::SetKeyboardFocusHere(-1);
-
-			int buttons_left = 10;
-			for (auto &net : m_nets) {
-				if (buttons_left > 0) {
-					if (utf8casestr(net->name.c_str(), m_search)) {
-						if (ImGui::Button(net->name.c_str())) {
-							SetNetFilter(net->name.c_str());
-							ImGui::CloseCurrentPopup();
-						}
-						if (buttons_left == 10) {
-							first_button = net->name.c_str();
-						}
-						buttons_left--;
-					}
-				}
-			}
-
-			// Enter and Esc close the search:
-			if (ImGui::IsKeyPressed(SDLK_RETURN)) {
-				SetNetFilter(first_button);
-				ImGui::CloseCurrentPopup();
-			}
-			if (ImGui::Button("Clear") || ImGui::IsKeyPressed(SDLK_ESCAPE)) {
-				SetNetFilter("");
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-
+void BoardView::SearchComponent(void) {
 		if (ImGui::BeginPopupModal("Search for Component",
 		                           nullptr,
-		                           ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
-		                               ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_ShowBorders)) {
+	                           ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings |
+	                               ImGuiWindowFlags_ShowBorders)) {
 			char cs[128];
 			const char *first_button = m_search;
 			const char *first_button2 = m_search2;
@@ -655,6 +462,222 @@ void BoardView::Update() {
 
 			ImGui::EndPopup();
 		}
+}
+
+void BoardView::SearchNet(void) {
+	/*
+ * Network popup window (search)
+ */
+	if (ImGui::BeginPopupModal("Search for Net", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_ShowBorders)) {
+		if (m_showNetfilterSearch) {
+			m_showNetfilterSearch = false;
+		}
+		if (ImGui::InputText("##search", m_search, 128)) {
+			SetNetFilter(m_search);
+		}
+		const char *first_button = m_search;
+		if (ImGui::IsItemHovered() ||
+		    (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+			ImGui::SetKeyboardFocusHere(-1);
+
+		int buttons_left = 10;
+		for (auto &net : m_nets) {
+			if (buttons_left > 0) {
+				if (utf8casestr(net->name.c_str(), m_search)) {
+					if (ImGui::Button(net->name.c_str())) {
+						SetNetFilter(net->name.c_str());
+						ImGui::CloseCurrentPopup();
+					}
+					if (buttons_left == 10) {
+						first_button = net->name.c_str();
+					}
+					buttons_left--;
+				}
+			}
+		}
+
+		// Enter and Esc close the search:
+		if (ImGui::IsKeyPressed(SDLK_RETURN)) {
+			SetNetFilter(first_button);
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::Separator();
+		if (ImGui::Button("Clear") || ImGui::IsKeyPressed(SDLK_ESCAPE)) {
+			SetNetFilter("");
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		ImGui::Text("ENTER to submit, ESC to close");
+		ImGui::EndPopup();
+	}
+}
+
+/** UPDATE Logic region
+ *
+ *
+ *
+ *
+ */
+void BoardView::Update() {
+	bool open_file = false;
+	// ImGuiIO &io = ImGui::GetIO();
+	char *preset_filename = NULL;
+	float menu_height     = 0;
+	ImGuiIO &io           = ImGui::GetIO();
+
+	/**
+	 * ** FIXME
+	 * This should be handled in the keyboard section, not here
+	 */
+	if ((io.KeyCtrl) && ImGui::IsKeyPressed(SDLK_o)) {
+		open_file = true;
+		// the dialog will likely eat our WM_KEYUP message for CTRL and O:
+		io.KeysDown[SDL_SCANCODE_RCTRL] = false;
+		io.KeysDown[SDL_SCANCODE_LCTRL] = false;
+		io.KeysDown[SDLK_o]             = false;
+	}
+
+	if ((io.KeyCtrl) && ImGui::IsKeyPressed(SDLK_q)) {
+		m_wantsQuit = true;
+	}
+
+	if (ImGui::BeginMainMenuBar()) {
+		menu_height = ImGui::GetWindowHeight();
+
+		SearchNet();
+		SearchComponent();
+		HelpControls();
+		HelpAbout();
+
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Open", "Ctrl+O")) {
+				open_file = true;
+			}
+
+			/// Generate file history - PLD20160618-2028
+			ImGui::Separator();
+			{
+				int i;
+				for (i = 0; i < fhistory.count; i++) {
+					if (ImGui::MenuItem(fhistory.Trim_filename(fhistory.history[i], 2))) {
+						open_file       = true;
+						preset_filename = fhistory.history[i];
+					}
+				}
+			}
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Quit")) {
+				m_wantsQuit = true;
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("View")) {
+			if (ImGui::MenuItem("Flip board", "<Space>")) {
+				FlipBoard();
+			}
+			if (ImGui::MenuItem("Rotate CW")) {
+				Rotate(1);
+			}
+			if (ImGui::MenuItem("Rotate CCW")) {
+				Rotate(-1);
+			}
+			if (ImGui::MenuItem("Reset View", "5")) { // actually want this to be numpad 5
+				CenterView();
+			}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Search")) {
+			if (ImGui::MenuItem("Components", "c")) {
+				m_showComponentSearch = true;
+			}
+			if (ImGui::MenuItem("Nets", "n")) {
+				m_showNetfilterSearch = true;
+			}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Windows")) {
+			if (ImGui::MenuItem("Net List", "l")) {
+				m_showNetList = m_showNetList ? false : true;
+			}
+			if (ImGui::MenuItem("Part List", "k")) {
+				m_showPartList = m_showPartList ? false : true;
+			}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Help##1")) {
+			if (ImGui::MenuItem("Controls")) {
+				m_showHelpControls = true;
+			}
+			if (ImGui::MenuItem("About")) {
+				m_showHelpAbout = true;
+			}
+			ImGui::EndMenu();
+		}
+
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(60, 1));
+
+		ImGui::SameLine();
+		if (ImGui::Button(" - ")) {
+			Zoom(m_lastWidth / 2, m_lastHeight / 2, -zoomFactor);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(" + ")) {
+			Zoom(m_lastWidth / 2, m_lastHeight / 2, +zoomFactor);
+		}
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(20, 1));
+		ImGui::SameLine();
+		if (ImGui::Button("-")) {
+			Zoom(m_lastWidth / 2, m_lastHeight / 2, -zoomFactor / zoomModifier);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("+")) {
+			Zoom(m_lastWidth / 2, m_lastHeight / 2, +zoomFactor / zoomModifier);
+		}
+
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(20, 1));
+		ImGui::SameLine();
+		if (ImGui::Button(" < ")) {
+			Rotate(-1);
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button(" ^ ")) {
+			FlipBoard();
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button(" > ")) {
+			Rotate(1);
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("X")) {
+			CenterView();
+		}
+
+		if (m_showHelpAbout) {
+			ImGui::OpenPopup("About");
+		}
+		if (m_showHelpControls) {
+			ImGui::OpenPopup("Controls");
+		}
+		if (m_showNetfilterSearch) {
+			ImGui::OpenPopup("Search for Net");
+		}
+		if (m_showComponentSearch && m_file) {
+			ImGui::OpenPopup("Search for Component");
+		}
+		if (m_lastFileOpenWasInvalid) {
+			ImGui::OpenPopup("Error opening file");
+			m_lastFileOpenWasInvalid = false;
+		}
 
 		if (ImGui::BeginPopupModal("Error opening file")) {
 			ImGui::Text("There was an error opening the file: %s", m_lastFileOpenName);
@@ -706,7 +729,6 @@ void BoardView::Update() {
 	/*
 	 * Status footer
 	 */
-	//const ImGuiIO &io = ImGui::GetIO();
 	float status_height = (10.0f + ImGui::GetFontSize());
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 3.0f));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
