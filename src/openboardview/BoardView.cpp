@@ -2130,7 +2130,6 @@ void BoardView::SetNetFilter(const char *net) {
 void BoardView::FindComponentNoClear(const char *name ) {
 	if (!m_file || !m_board) return;
 
-
 	string comp_name = string(name);
 
 	if (!comp_name.empty()) {
