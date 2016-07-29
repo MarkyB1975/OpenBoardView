@@ -228,12 +228,14 @@ int BoardView::LoadFile( char *filename ) {
 
 			if (strcmp(ext, ".fz") == 0) { // Since it is encrypted we cannot use the below logic. Trust the ext.
 				file = new FZFile(buffer, buffer_size, FZKey);
-			}
-			else if (BRDFile::verifyFormat(buffer, buffer_size)) file = new BRDFile(buffer, buffer_size);
-			else if (BRD2File::verifyFormat(buffer, buffer_size)) file = new BRD2File(buffer, buffer_size);
-			else if (BDVFile::verifyFormat(buffer, buffer_size)) file = new BDVFile(buffer, buffer_size);
-			else if (BVRFile::verifyFormat(buffer, buffer_size)) file = new BVRFile(buffer, buffer_size);
-
+			} else if (BRDFile::verifyFormat(buffer, buffer_size))
+				file = new BRDFile(buffer, buffer_size);
+			else if (BRD2File::verifyFormat(buffer, buffer_size))
+				file = new BRD2File(buffer, buffer_size);
+			else if (BDVFile::verifyFormat(buffer, buffer_size))
+				file = new BDVFile(buffer, buffer_size);
+			else if (BVRFile::verifyFormat(buffer, buffer_size))
+				file = new BVRFile(buffer, buffer_size);
 
 			/*
         if (!strcmp(ext, ".brd")) // Recognize file format using filename extension
