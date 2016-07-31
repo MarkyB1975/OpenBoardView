@@ -48,7 +48,7 @@ struct globals {
 		this->slowCPU     = false;
 		this->width       = 0;
 		this->height      = 0;
-		this->dpi = 0;
+		this->dpi         = 0;
 		this->font_size   = 0.0f;
 		this->debug       = false;
 	}
@@ -205,7 +205,11 @@ int main(int argc, char **argv) {
 	if (homepath) {
 		struct stat st;
 		int sr;
+#ifdef __APPLE__
+		snprintf(s, sizeof(s), "%s/Library/Application Support/OpenBoardView", homepath);
+#else
 		snprintf(s, sizeof(s), "%s/.config/openboardview", homepath);
+#endif
 		sr = stat(s, &st);
 		if (sr == -1) {
 			mkdir(s, S_IRWXU);
@@ -217,10 +221,18 @@ int main(int argc, char **argv) {
 		 * filenames and load up
 		 */
 		if ((sr == 0) && (S_ISDIR(st.st_mode))) {
+#ifdef __APPLE__
+			snprintf(s, sizeof(s), "%s/Library/Application Support/OpenBoardView/obv.conf", homepath);
+#else
 			snprintf(s, sizeof(s), "%s/.config/openboardview/obv.conf", homepath);
+#endif
 			app.obvconfig.Load(s);
 
+#ifdef __APPLE__
+			snprintf(s, sizeof(s), "%s/Library/Application Support/OpenBoardView/obv.history", homepath);
+#else
 			snprintf(s, sizeof(s), "%s/.config/openboardview/obv.history", homepath);
+#endif
 			app.fhistory.Set_filename(s);
 			app.fhistory.Load();
 		}
@@ -326,9 +338,9 @@ int main(int argc, char **argv) {
 	cleanupAndExit(1);
 #endif
 
-	ImGuiIO &io                          = ImGui::GetIO();
-	io.IniFilename                       = NULL;
-	std::string fontpath                 = get_asset_path(app.obvconfig.ParseStr("fontPath", "DroidSans.ttf"));
+	ImGuiIO &io          = ImGui::GetIO();
+	io.IniFilename       = NULL;
+	std::string fontpath = get_asset_path(app.obvconfig.ParseStr("fontPath", "DroidSans.ttf"));
 	//	io.Fonts->AddFontDefault();
 
 	// Main loop
@@ -343,7 +355,7 @@ int main(int argc, char **argv) {
 	app.ConfigParse();
 
 	if (g.font_size == 0.0f) g.font_size = app.obvconfig.ParseDouble("fontSize", 20.0f);
-	g.font_size = (g.font_size *app.dpi) / 100;
+	g.font_size                          = (g.font_size * app.dpi) / 100;
 	io.Fonts->AddFontFromFileTTF(fontpath.c_str(), g.font_size);
 
 	// ImVec4 clear_color = ImColor(20, 20, 30);
