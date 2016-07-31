@@ -9,8 +9,8 @@
 #include <memory>
 #include <stdio.h>
 #ifndef _WIN32
-#include <sqlite3.h>
 #include <SDL2/SDL.h>
+#include <sqlite3.h>
 #else
 #include <winsqlite3/winsqlite.h>
 #endif
@@ -1619,7 +1619,6 @@ void BoardView::HandleInput() {
 		}
 	}
 }
-
 
 /* END UPDATE REGION */
 
