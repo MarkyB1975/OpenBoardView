@@ -32,7 +32,6 @@
 #endif
 #include <glad/glad.h>
 
-
 struct globals {
 	char *input_file;
 	char *config_file;
