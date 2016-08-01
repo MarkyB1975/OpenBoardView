@@ -126,6 +126,7 @@ style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.35f
 		pinShapeSquare = true;
 	}
 
+	dpi = obvconfig.ParseInt("dpi", 100);
 	pinHalo = obvconfig.ParseBool("pinHalo", true);
 	showFPS = obvconfig.ParseBool("showFPS", false);
 	fillParts = obvconfig.ParseBool("fillParts", true);
