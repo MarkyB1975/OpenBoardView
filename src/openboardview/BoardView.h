@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <vector>
 
-
 #define DPIF(x) (((x) *dpi) / 100.f)
 #define DPI(x) (((x) *dpi) / 100)
 

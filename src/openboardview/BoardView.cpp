@@ -12,7 +12,6 @@
 #include <SDL2/SDL.h>
 #endif
 
-#include "sqlite3.h"
 #include "BDVFile.h"
 #include "BRD2File.h"
 #include "BRDBoard.h"
@@ -22,6 +21,7 @@
 #include "FZFile.h"
 #include "annotations.h"
 #include "imgui/imgui.h"
+#include "sqlite3.h"
 
 #include "NetList.h"
 #include "PartList.h"
@@ -132,7 +132,6 @@ style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.35f
 	if (dpi < 50) dpi = 50;
 	if (dpi > 400) dpi = 400;
 	dpiscale = dpi / 100.0f;
-
 
 	pinHalo = obvconfig.ParseBool("pinHalo", true);
 	showFPS = obvconfig.ParseBool("showFPS", false);
@@ -1812,9 +1811,11 @@ inline void BoardView::DrawParts(ImDrawList *draw) {
 	 ppp = &pva[0];
 			if (part->pins.size() == 0) {
 				if (debug) fprintf(stderr,"WARNING: Drawing empty part %s\n", part->name.c_str());
-				draw->AddRect(
-				    CoordToScreen(part->p1.x + DPIF(10), part->p1.y + DPIF(10)), CoordToScreen(part->p2.x - DPIF(10), part->p2.y - DPIF(10)), 0xff0000ff);
-				draw->AddText(CoordToScreen(part->p1.x + DPIF(10), part->p1.y - DPIF(50)), m_colors.partTextColor, part->name.c_str());
+				draw->AddRect(CoordToScreen(part->p1.x + DPIF(10), part->p1.y + DPIF(10)),
+				              CoordToScreen(part->p2.x - DPIF(10), part->p2.y - DPIF(10)),
+				              0xff0000ff);
+				draw->AddText(
+				    CoordToScreen(part->p1.x + DPIF(10), part->p1.y - DPIF(50)), m_colors.partTextColor, part->name.c_str());
 //				part->component_type = part->kComponentTypeDummy;
 //				part->outline_done = true;
 				continue;
