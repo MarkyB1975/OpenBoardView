@@ -69,6 +69,8 @@ struct ColorScheme {
 	uint32_t pinHighlightSameNet = 0xff99f8ff;
 
 	uint32_t annotationPartAlias = 0xcc00ffff;
+	uint32_t annotationBoxColor   = 0xaa0000ff;
+	uint32_t annotationStalkColor = 0xff000000;
 
   uint32_t partHullColor = 0x80808080;
   uint32_t selectedMaskPins = 0x4FFFFFFF;
@@ -94,6 +96,10 @@ struct BoardView {
 	int zoomModifier             = 5;
 	int panFactor                = 30;
 	int panModifier              = 5;
+
+	int annotationBoxOffset = 10;
+	int annotationBoxSize   = 10;
+
 	float pinSizeThresholdLow    = 0.0f;
 	bool pinShapeSquare          = false;
 	bool pinShapeCircle          = true;
