@@ -233,7 +233,10 @@ style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.35f
 	 * of comma/space separated 32-bit hex values 0x1234abcd etc.
 	 *
 	 */
-	SetFZKey(obvconfig.ParseStr("FZKey", ""));
+	{
+		char noKey[] = "";
+		SetFZKey(obvconfig.ParseStr("FZKey", noKey));
+	}
 
 	return 0;
 }
