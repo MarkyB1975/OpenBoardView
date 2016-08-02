@@ -151,7 +151,7 @@ style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.35f
 	annotationBoxSize             = obvconfig.ParseInt("annotationBoxSize", 15);
 	annotationBoxSize = DPI(annotationBoxSize);
 
-	annotationBoxOffset           = obvconfig.ParseInt("annotationBoxOffset", 15);
+	annotationBoxOffset = obvconfig.ParseInt("annotationBoxOffset", 8);
 	annotationBoxOffset = DPI(annotationBoxOffset);
 
 
