@@ -1,4 +1,6 @@
-find_package(SDL2 REQUIRED) # is this really required by windows?
+if(NOT WIN32)
+	find_package(SDL2 REQUIRED) # is this really required by windows?
+endif()
 
 option(ENABLE_GL3 "Build OpenGL 3 renderer." ON)
 option(ENABLE_GLES2 "Build OpenGL ES 2 renderer." ON)
@@ -31,12 +33,16 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../imgui
 	${CMAKE_CURRENT_SOURCE_DIR}/../json11
 	${GLAD_INCLUDE_DIRS}
-	${SDL2_INCLUDE_DIR}
 	${GTK_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIR}
 	${ZLIB_INCLUDE_DIRS}
 	${SQLITE3_INCLUDE_DIRS}
+	${CMAKE_BINARY_DIR}/src/zlib
 )
+
+if(NOT WIN32)
+	include_directories(${SDL2_INCLUDE_DIR})
+endif()
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 if(MINGW)
@@ -55,22 +61,27 @@ set(SOURCES
 	BRDBoard.cpp
 	BRDFile.cpp
 	FZFile.cpp
-	main_opengl.cpp
 	NetList.cpp
 	PartList.cpp
 	TextureDDS.cpp
 )
 
-if(ENABLE_GL3)
-	LIST(APPEND SOURCES
-		imgui_impl_sdl_gl3.cpp
-	)
-endif()
-if(ENABLE_GLES2)
-	LIST(APPEND SOURCES
-		imgui_impl_sdl_gles2.cpp
-	)
-endif()
+#if(WIN32)
+#	LIST(APPEND SOURCES
+#		imgui_impl_dx9.cpp
+#	)
+#else()
+	if(ENABLE_GL3)
+		LIST(APPEND SOURCES
+			imgui_impl_sdl_gl3.cpp
+		)
+	endif()
+	if(ENABLE_GLES2)
+		LIST(APPEND SOURCES
+			imgui_impl_sdl_gles2.cpp
+		)
+	endif()
+#endif()
 
 if(UNIX)
 	if(APPLE)
@@ -80,26 +91,35 @@ if(UNIX)
 	endif ()
 	set(SOURCES ${SOURCES}
 		unix.cpp
+		main_opengl.cpp
 	)
 elseif (MINGW) # Should this just be WIN32?
 	set(SOURCES ${SOURCES}
 		win32.cpp
+		main_opengl.cpp
+#		main_dx9.cpp
+		../vcpp/OpenBoardView.utf8.rc
 	)
 endif()
 
 # Must be defined in the same directory as the add_executable including the file
 set_source_files_properties(${ASSETS} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
+#SET(CMAKE_EXE_LINKER_FLAGS "-static")
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+
 add_executable(openboardview
 	MACOSX_BUNDLE
+	WIN32
 	${SOURCES}
 	${ASSETS}
 )
 
+set_target_properties(openboardview PROPERTIES LINK_SEARCH_END_STATIC 1)
 set_target_properties(openboardview PROPERTIES MACOSX_BUNDLE_ICON_FILE "brd")
 
 target_link_libraries(openboardview
-	dl
 	imgui
 	json11
 	${GLAD_LIBRARIES}
@@ -107,7 +127,18 @@ target_link_libraries(openboardview
 	${SDL2_LIBRARY}
 	${ZLIB_LIBRARIES}
 	${SQLITE3_LIBRARIES}
+	mingw32
+	SDL2main
+	SDL2
+	version
+	winmm
 )
+
+if(UNIX)
+	target_link_libraries(openboardview
+		dl
+	)
+endif()
 
 if(ENABLE_GL3)
 	add_definitions(-DENABLE_GL3)

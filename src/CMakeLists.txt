@@ -44,11 +44,19 @@ execute_process(
 ## zlib ##
 find_package(ZLIB)
 if(NOT ZLIB_FOUND)
+	execute_process(
+		COMMAND git submodule update --init src/zlib
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	)
 	set(SKIP_INSTALL_FILES YES)
-	set(SKIP_INSTALL_HEADERS YES)
+	set(SKIP_INSTALL_HEADERS NO)
 	add_subdirectory(zlib)
 
-	set(ZLIB_LIBRARIES z CACHE INTERNAL "zlib library")
+	if(WIN32)
+		set(ZLIB_LIBRARIES zlibstatic CACHE INTERNAL "zlib library")
+	else()
+		set(ZLIB_LIBRARIES z CACHE INTERNAL "zlib library")
+	endif()
 	set(ZLIB_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/zlib)
 endif()
 

@@ -8,9 +8,9 @@
 #include <limits.h>
 #include <memory>
 #include <stdio.h>
-#ifndef _WIN32
+//#ifndef _WIN32
 #include <SDL2/SDL.h>
-#endif
+//#endif
 
 #include "BDVFile.h"
 #include "BRD2File.h"

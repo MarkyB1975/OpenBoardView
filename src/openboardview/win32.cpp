@@ -3,7 +3,7 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 #include "imgui/imgui.h"
 #include "platform.h"
-#include <Windows.h>
+#include <windows.h>
 #include <assert.h>
 #include <stdint.h>
 
@@ -87,6 +87,13 @@ unsigned char *LoadAsset(int *asset_size, int asset_id) {
 	unsigned char *data = (unsigned char *)LockResource(res);
 	UnlockResource(res);
 	return data;
+}
+
+std::string get_asset_path(const char *asset) {
+	std::string path = "asset";
+	path += "/";
+	path += asset;
+	return path;
 }
 
 ImTextureID TextureIDs[NUM_GLOBAL_TEXTURES];

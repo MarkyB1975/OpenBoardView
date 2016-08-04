@@ -20,6 +20,8 @@
 #include <direct.h>
 #include <shlwapi.h>
 #include <tchar.h>
+#include <sys/stat.h>
+
 
 // Data
 static LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;

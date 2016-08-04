@@ -39,6 +39,9 @@ if [ "$ARG_LENGTH" -gt 0 -a "$1" == "--recompile" -o "$2" == "--recompile" ]; th
   rm -rf $COMPILEDIR
   SCRIPT_ARGC=$((SCRIPT_ARGC+1))
 fi
+if [ $CROSS == "mingw64" ]; then
+  COMPILEFLAGS="$COMPILEFLAGS -DCMAKE_TOOLCHAIN_FILE=../Toolchain-mingw64.cmake"
+fi
 COMPILEFLAGS="$COMPILEFLAGS ${@:${SCRIPT_ARGC}}" # pass other arguments to CMAKE
 if [ $THREADS -lt 1 ]; then
   echo "$(tput bold ; tput setaf 1)Unable to detect number of threads, using 1 thread.$(tput sgr0)"
