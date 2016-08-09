@@ -321,7 +321,9 @@ bool ImGui_ImplSdlGL3_CreateDeviceObjects() {
 #undef OFFSETOF
 
 	ImGui_ImplSdlGL3_CreateFontsTexture();
+#ifndef _WIN32
 	ImGui_ImplSdlGL3_CreateCircleTexture();
+#endif
 
 	// Restore modified GL state
 	glBindTexture(GL_TEXTURE_2D, last_texture);
