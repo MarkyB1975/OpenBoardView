@@ -39,7 +39,7 @@ if [ "$ARG_LENGTH" -gt 0 -a "$1" == "--recompile" -o "$2" == "--recompile" ]; th
   rm -rf $COMPILEDIR
   SCRIPT_ARGC=$((SCRIPT_ARGC+1))
 fi
-if [ $CROSS == "mingw64" ]; then
+if [ "$CROSS" == "mingw64" ]; then
   COMPILEFLAGS="$COMPILEFLAGS -DCMAKE_TOOLCHAIN_FILE=../Toolchain-mingw64.cmake"
 fi
 COMPILEFLAGS="$COMPILEFLAGS ${@:${SCRIPT_ARGC}}" # pass other arguments to CMAKE
@@ -62,10 +62,10 @@ echo "Extra flags passed to CMake: $COMPILEFLAGS"
 cmake $COMPILEFLAGS ..
 [[ "$?" != "0" ]] && echo "$(tput bold ; tput setaf 1)CMAKE FAILED$(tput sgr0)" && exit 1
 if `echo "$COMPILEFLAGS" | grep -q "DEBUG"`; then
-  make -j$THREADS install
+  make -j$THREADS #install
   [[ "$?" != "0" ]] && echo "$(tput bold ; tput setaf 1)MAKE INSTALL FAILED$(tput sgr0)" && exit 1
 else
-  make -j$THREADS install/strip
+  make -j$THREADS #install/strip
   [[ "$?" != "0" ]] && echo "$(tput bold ; tput setaf 1)MAKE INSTALL/STRIP FAILED$(tput sgr0)" && exit 1
 fi
 

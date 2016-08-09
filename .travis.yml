@@ -3,38 +3,22 @@ os:
 
 compiler:
   - gcc
-  - clang
-
-matrix:
-  include:
-    - os: osx
-      compiler: clang
 
 dist: trusty
 sudo: required
 language: cpp
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-6
-    - g++-6
-
 install: |-
-  if [ "$TRAVIS_OS_NAME" == "linux" ]
-  then
-    sudo apt-get -qy install libsdl2-dev libgtk-3-dev
-  elif [ "$TRAVIS_OS_NAME" == "osx" ]
-  then
-    brew update
-    brew install sdl2
-  fi
+  sudo add-apt-repository "deb http://fr.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse"
+  sudo apt-get install -t xenial gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw32-runtime
+  wget https://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
+  tar -xf SDL2-devel-2.0.4-mingw.tar.gz
+  cd SDL2-2.0.4
+  make cross CROSS_PATH=/usr
+  sed '/^# Example binaries$/,$d'
 
 script: |-
-  if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
-  ./build.sh
+  CROSS=mingw64 ./build.sh
 
 deploy:
   provider: releases
