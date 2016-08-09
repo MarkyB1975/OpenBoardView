@@ -10,12 +10,14 @@ language: cpp
 
 install: |-
   sudo add-apt-repository "deb http://fr.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse"
+  sudo apt-get update
   sudo apt-get install -t xenial gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw32-runtime
   wget https://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
   tar -xf SDL2-devel-2.0.4-mingw.tar.gz
-  cd SDL2-2.0.4
-  make cross CROSS_PATH=/usr
-  sed '/^# Example binaries$/,$d'
+  pushd SDL2-2.0.4
+  sudo make cross CROSS_PATH=/usr
+  popd
+  sed '/^# Example binaries$/,$d' -i src/zlib/CMakeLists.txt
 
 script: |-
   CROSS=mingw64 ./build.sh
