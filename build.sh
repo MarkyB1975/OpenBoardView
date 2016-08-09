@@ -62,10 +62,10 @@ echo "Extra flags passed to CMake: $COMPILEFLAGS"
 cmake $COMPILEFLAGS ..
 [[ "$?" != "0" ]] && echo "$(tput bold ; tput setaf 1)CMAKE FAILED$(tput sgr0)" && exit 1
 if `echo "$COMPILEFLAGS" | grep -q "DEBUG"`; then
-  make -j$THREADS #install
+  make -j$THREADS install
   [[ "$?" != "0" ]] && echo "$(tput bold ; tput setaf 1)MAKE INSTALL FAILED$(tput sgr0)" && exit 1
 else
-  make -j$THREADS #install/strip
+  make -j$THREADS install/strip
   [[ "$?" != "0" ]] && echo "$(tput bold ; tput setaf 1)MAKE INSTALL/STRIP FAILED$(tput sgr0)" && exit 1
 fi
 

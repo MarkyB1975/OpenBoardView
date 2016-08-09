@@ -25,9 +25,9 @@ script: |-
 deploy:
   provider: releases
   api_key:
-    secure: ENCRYPTED_API_KEY
+    secure: djDi+oX9YFp0XvbuSIM4v5UctvL/fOrvbLEqTn5NtgD82nzmJes+u9oBAeDVVox7WL1DkjVuN+cdms3B2ac51SHS9bwjUJBaBA+YeBRinBeQGpjwKfkVuZHm8n0fyLzhx+fgKNAT8ix+Kf4+MS+SFpvZ/b2WIEhE3U/vyX1q2aUkEUkL1o1gHjE71A0ZcaOI1HTRo07wpQSc6Ly8fSbBR0C6fM0SSDaAiPPTDqEvHVztEfb7EacJ4u22kX/aGY0zH4diAyYshHE9CU+LNyiNxU48qrVoD8rsJQcye3yckZqX56UbbM/VGwDt8FtMycPo7pPgViWLBqSiB57/TCioBmTeIhLr1A82uWg9AuuOzM+z+RCtijNlWTLFImsJNn/0FQMPnIvcm7hYWwV76kpn8dJT4vNqtVbLO4OD4i7oBAlVD7u1E8aCAtlmvA79xliOxd/wLby5FgHXBOXXqLHtv+C6CWN4SRknZIDudd2Q+89hWnR6sym4x5axyl/ic2DqctipfX9x54QG9nX+GfNd92EeiygTSH+jwhtwHAjbnX0tehvQq96eMvVWQR4E0T+1/Gv8AxHQCnWZmYYTWJ75yXakWh7/8wvYn4Xy8CqXVUwH9ZiYYz6rgZyU+GponwITeDCHOE2rd3sEX7q3Q4c/Vsxz6DYVbtSRFm47Jb3sbwg=
   file_glob: true
-  file: OpenBoardView-*.dmg
+  file: bin/openboardview.exe
   skip_cleanup: true
   on:
     tags: true
