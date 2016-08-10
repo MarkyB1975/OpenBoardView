@@ -2,8 +2,10 @@ if(NOT WIN32)
 	find_package(SDL2 REQUIRED) # is this really required by windows?
 endif()
 
+option(ENABLE_GL2 "Build OpenGL 2 renderer." ON)
 option(ENABLE_GL3 "Build OpenGL 3 renderer." ON)
 option(ENABLE_GLES2 "Build OpenGL ES 2 renderer." ON)
+
 
 # Link with Cocoa on OS X and GTK3 on other Unix (or MinGW)
 # Used for open file dialog
@@ -44,9 +46,9 @@ if(NOT WIN32)
 	include_directories(${SDL2_INCLUDE_DIR})
 endif()
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-if(MINGW)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE -D_UNICODE")
+if(WIN32)
+	add_definitions(-DUNICODE)
+	add_definitions(-D_UNICODE)
 endif()
 
 set(SOURCES
@@ -71,6 +73,11 @@ set(SOURCES
 #		imgui_impl_dx9.cpp
 #	)
 #else()
+	if(ENABLE_GL2)
+		LIST(APPEND SOURCES
+			imgui_impl_sdl.cpp
+		)
+	endif()
 	if(ENABLE_GL3)
 		LIST(APPEND SOURCES
 			imgui_impl_sdl_gl3.cpp
@@ -93,7 +100,7 @@ if(UNIX)
 		unix.cpp
 		main_opengl.cpp
 	)
-elseif (MINGW) # Should this just be WIN32?
+elseif (WIN32) # Should this just be WIN32?
 	set(SOURCES ${SOURCES}
 		win32.cpp
 		main_opengl.cpp
@@ -105,10 +112,6 @@ endif()
 # Must be defined in the same directory as the add_executable including the file
 set_source_files_properties(${ASSETS} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
-#SET(CMAKE_EXE_LINKER_FLAGS "-static")
-set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
-
 add_executable(openboardview
 	MACOSX_BUNDLE
 	WIN32
@@ -116,7 +119,11 @@ add_executable(openboardview
 	${ASSETS}
 )
 
-set_target_properties(openboardview PROPERTIES LINK_SEARCH_END_STATIC 1)
+if(WIN32) # Dirty fix to force linking all libs (esp. libstdc++) statically for Windows
+	set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
+	set_target_properties(openboardview PROPERTIES LINK_SEARCH_END_STATIC 1)
+endif()
+
 set_target_properties(openboardview PROPERTIES MACOSX_BUNDLE_ICON_FILE "brd")
 
 target_link_libraries(openboardview
@@ -127,19 +134,25 @@ target_link_libraries(openboardview
 	${SDL2_LIBRARY}
 	${ZLIB_LIBRARIES}
 	${SQLITE3_LIBRARIES}
-	mingw32
-	SDL2main
-	SDL2
-	version
-	winmm
 )
 
 if(UNIX)
 	target_link_libraries(openboardview
 		dl
 	)
+elseif(WIN32)
+	target_link_libraries(openboardview
+		mingw32
+		SDL2main
+		SDL2
+		version
+		winmm
+	)
 endif()
 
+if(ENABLE_GL2)
+	add_definitions(-DENABLE_GL2)
+endif()
 if(ENABLE_GL3)
 	add_definitions(-DENABLE_GL3)
 endif()
@@ -151,12 +164,3 @@ install(TARGETS
 	openboardview
 	RUNTIME DESTINATION ${INSTALL_RUNTIME_DIR}
 	BUNDLE DESTINATION ${INSTALL_BUNDLE_DIR})
-
-if (MINGW)
-	install(DIRECTORY ${PROJECT_SOURCE_DIR}/${INSTALL_ASSET_DIR} DESTINATION ${INSTALL_RUNTIME_DIR})
-endif ()
-
-add_custom_target(install_obv
-	${CMAKE_MAKE_PROGRAM} install
-	DEPENDS openboardview
-	COMMENT "Installing ${PROJECT_NAME}")
