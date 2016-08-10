@@ -49,32 +49,36 @@ struct ColorScheme {
 	 * Take note, because these are directly set
 	 * the packing format is ABGR,  not RGBA
 	 */
-	uint32_t backgroundColor         = 0xffffffff;
-	uint32_t boardFillColor          = 0xffdddddd;
-	uint32_t partTextColor           = 0xff808000;
-	uint32_t partTextBackgroundColor = 0xff00eeee;
-	uint32_t partOutlineColor        = 0xff444444;
-	uint32_t partFillColor           = 0xffffffff;
-	uint32_t boardOutline            = 0xff00ffff;
+	uint32_t backgroundColor          = 0xffffffff;
+	uint32_t boardFillColor           = 0xffdddddd;
+	uint32_t partTextColor            = 0xff808000;
+	uint32_t partTextBackgroundColor  = 0xff00eeee;
+	uint32_t partOutlineColor         = 0xff444444;
+	uint32_t partHullColor            = 0x80808080;
+	uint32_t partFillColor            = 0xffffffff;
+	uint32_t partHighlightedColor     = 0xff0000ee;
+	uint32_t partHighlightedFillColor = 0xffeeeeff;
+	uint32_t boardOutlineColor        = 0xff00ffff;
 
 	//	uint32_t boxColor = 0xffcccccc;
 
-	uint32_t pinDefault      = 0xff0000ff;
-	uint32_t pinGround       = 0xff0000bb;
-	uint32_t pinNotConnected = 0xffff0000;
-	uint32_t pinTestPad      = 0xff888888;
+	uint32_t pinDefaultColor      = 0xff0000ff;
+	uint32_t pinGroundColor       = 0xff0000bb;
+	uint32_t pinNotConnectedColor = 0xffff0000;
+	uint32_t pinTestPadColor      = 0xff888888;
 
-	uint32_t pinSelected         = 0xff00eeee;
-	uint32_t pinSelectedText     = 0xff00eeee;
-	uint32_t pinHalo             = 0x8f00ff00;
-	uint32_t pinHighlighted      = 0xffffffff;
-	uint32_t pinHighlightSameNet = 0xff99f8ff;
+	uint32_t pinSelectedColor         = 0xff00eeee;
+	uint32_t pinSelectedTextColor     = 0xff00eeee;
+	uint32_t pinHaloColor             = 0x8f00ff00;
+	uint32_t pinHighlightedColor      = 0xffffffff;
+	uint32_t pinHighlightSameNetColor = 0xff99f8ff;
 
-	uint32_t annotationPartAlias  = 0xcc00ffff;
-	uint32_t annotationBoxColor   = 0xaa0000ff;
-	uint32_t annotationStalkColor = 0xff000000;
+	uint32_t annotationPartAliasColor       = 0xcc00ffff;
+	uint32_t annotationBoxColor             = 0xaa0000ff;
+	uint32_t annotationStalkColor           = 0xff000000;
+	uint32_t annotationPopupBackgroundColor = 0xffeeeeee;
+	uint32_t annotationPopupTextColor       = 0xff000000;
 
-	uint32_t partHullColor       = 0x80808080;
 	uint32_t selectedMaskPins    = 0x4FFFFFFF;
 	uint32_t selectedMaskParts   = 0x8FFFFFFF;
 	uint32_t selectedMaskOutline = 0x8FFFFFFF;
@@ -141,9 +145,17 @@ struct BoardView {
 	void SetFZKey(char *keytext);
 	void HelpAbout(void);
 	void HelpControls(void);
-	void SearchNet(void);
 	void SearchComponent(void);
+	void SetNetFilterNoClear(const char *net);
+	void SearchCompound(const char *item);
+	void SearchCompoundNoClear(const char *item);
+	void SearchColumnGenerate(char *search, int buttons_max);
+	void Preferences(void);
+	void ColorPreferencesItem(const char *label, const char *butlabel, const char *conflabel, int width, uint32_t *c);
+	void ColorPreferences(void);
+	bool AnyItemVisible(void);
 
+	int EPCCheck(void);
 	void OutlineGenFillDraw(ImDrawList *draw, int ydelta, double thickness);
 
 	/* Context menu, sql stuff */
@@ -157,6 +169,9 @@ struct BoardView {
 	bool m_tooltips_enabled       = true;
 	int m_annotation_last_hovered = 0;
 	int m_annotation_clicked_id   = 0;
+
+	bool HighlightedPinIsHovered(void);
+	Pin *m_pinHighlightedHovered = nullptr;
 
 	ImVec2 m_showContextMenuPos;
 
@@ -201,12 +216,16 @@ struct BoardView {
 	bool m_needsRedraw = true;
 	bool m_draggingLastFrame;
 	bool m_showContextMenu;
-	bool m_showNetfilterSearch;
-	bool m_showComponentSearch;
+	//	bool m_showNetfilterSearch;
+	bool m_showSearch;
+	bool m_searchComponents = true;
+	bool m_searchNets       = true;
 	bool m_showNetList;
 	bool m_showPartList;
 	bool m_showHelpAbout;
 	bool m_showHelpControls;
+	bool m_showPreferences;
+	bool m_showColorPreferences;
 	bool m_firstFrame = true;
 	bool m_lastFileOpenWasInvalid;
 	bool m_wantsQuit;
@@ -230,6 +249,8 @@ struct BoardView {
 	ImVec2 ScreenToCoord(float x, float y, float w = 1.0f);
 	void Move(float x, float y);
 	void Rotate(int count);
+	void DrawSelectedPins(ImDrawList *draw);
+	void ClearAllHighlights(void);
 
 	// Sets the center of the screen to (x,y) in board space
 	void SetTarget(float x, float y);

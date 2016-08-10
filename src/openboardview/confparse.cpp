@@ -30,6 +30,7 @@ pinShapeSquare = false\r\n\
 slowCPU =       false\r\n\
 showFPS =       false\r\n\
 pinHalo =       true\r\n\
+annotations = true\r\n\
 fillParts =		true\r\n\
 boardFill =		true\r\n\
 boardFillSpacing = 5\r\n\
@@ -42,8 +43,6 @@ panModifier = 5\r\n\
 \r\n\
 annotationBoxSize = 15\r\n\
 annotationBoxOffset = 8\r\n\
-annotationBoxColor = 0xff0000aa\r\n\
-annotationStalkColor = 0x000000ff\r\n\
 #\r\n\
 # \"XRayBlue\" Theme by Inflex (20160724)\r\n\
 # Colors, format is 0xRRGGBBAA\r\n\
@@ -52,21 +51,26 @@ lightTheme = true\r\n\
 backgroundColor		= 0xffffffff\r\n\
 boardFillColor	= 0xddddddff\r\n\
 partOutlineColor = 0x444444ff\r\n\
+partHullColor			= 0x80808080\r\n\
 partFillColor = 0xffffffbb\r\n\
+partFillSelectedColor = 0xffe0e0ff\r\n\
 partTextColor			= 0xff3030ff\r\n\
 partTextBackgroundColor			= 0xffff00ff\r\n\
-boardOutline			= 0x444444ff\r\n\
-pinDefault				= 0x8888ffff\r\n\
-pinGround				= 0x2222aaff\r\n\
-pinNotConnected		= 0xaaaaaaff\r\n\
-pinTestPad				= 0x888888ff\r\n\
-pinSelected				= 0x0000ffff\r\n\
-pinSelectedText			= 0xff0000ff\r\n\
-pinHighlighted			= 0x0000ffff\r\n\
+boardOutlineColor			= 0x444444ff\r\n\
+pinDefaultColor				= 0x8888ffff\r\n\
+pinGroundColor				= 0x2222aaff\r\n\
+pinNotConnectedColor		= 0xaaaaaaff\r\n\
+pinTestPadColor				= 0x888888ff\r\n\
+pinSelectedColor				= 0x0000ffff\r\n\
+pinSelectedTextColor			= 0xff0000ff\r\n\
+pinHighlightedColor			= 0x0000ffff\r\n\
 pinHaloColor			= 0x00aa00ff\r\n\
-pinHighlightSameNet	= 0x000000ff\r\n\
-annotationPartAlias	= 0xffff00ff\r\n\
-partHullColor			= 0x80808080\r\n\
+pinHighlightSameNetColor	= 0x000000ff\r\n\
+\r\n\
+annotationPopupTextColor = 0x000000ff\r\n\
+annotationPopupBackgroundColor = 0xeeeeeeff\r\n\
+annotationBoxColor = 0xff0000aa\r\n\
+annotationStalkColor = 0x000000ff\r\n\
 \r\n\
 selectedMaskPins		= 0xffffffff\r\n\
 selectedMaskParts		= 0xffffffff\r\n\
@@ -175,6 +179,8 @@ int Confparse::Load(const char *utf8_filename) {
 		if (nested) return 1; // to prevent infinite recursion, we test the nested flag
 		return (SaveDefault(utf8_filename));
 	}
+
+	snprintf(filename, CONFPARSE_FILENAME_MAX, "%s", utf8_filename);
 
 	std::streampos sz = file.tellg();
 	buffer_size       = sz;
@@ -319,3 +325,139 @@ bool Confparse::ParseBool(const char *key, bool defaultv) {
 	} else
 		return defaultv;
 }
+
+/*
+ * Write parts
+ *
+ */
+bool Confparse::WriteStr(const char *key, char *value) {
+	char *p, *op;
+	char *llimit;
+	int keylen;
+
+	if (!conf) return false;
+	if (!filename) return false;
+	if (!value) return false;
+	if (!key) return false;
+
+	keylen = strlen(key);
+	if (keylen == 0) return false;
+
+	op = p = strstr(conf, key);
+	if (p == NULL) return false;
+
+	llimit = limit - keylen - 2; // allows for up to 'key=x'
+
+	while (p && p < llimit) {
+
+		/*
+		 * Consume the name<whitespace>=<whitespace> trash before we
+		 * get to the actual value.  While this does mean things are
+		 * slightly less strict in the configuration file text it can
+		 * assist in making it easier for people to read it.
+		 */
+		p = p + keylen;
+
+		if ((p < llimit) && (!isalnum(*p))) {
+
+			while ((p < llimit) && ((*p == '=') || (*p == ' ') || (*p == '\t'))) p++; // get up to the start of the value;
+
+			if ((p < llimit) && (p >= conf)) {
+
+				/*
+				 * Check that the location of the strstr() return is
+				 * left aligned to the start of the line. This prevents
+				 * us picking up trash name=value pairs among the general
+				 * text within the file
+				 */
+				if ((op == conf) || (*(op - 1) == '\r') || (*(op - 1) == '\n')) {
+					char *ep = NULL;
+
+					/*
+					 * op represents the start of the line/key.
+					 * p represents the start of the value.
+					 *
+					 * we can just dump out to the file up to p and then
+					 * print our data
+					 */
+
+					/*
+					 * Search for the end of the data by finding the end of the line
+					 * This will become 'ep', which we'll use as the start of the
+					 * rest of the file data we dump back to the config.
+					 */
+					ep = p;
+					while ((ep < limit) && ((*ep != '\0') && (*ep != '\n') && (*ep != '\r'))) {
+						ep++;
+					}
+
+					{
+						char nfn[CONFPARSE_FILENAME_MAX];
+						std::ofstream file;
+
+						snprintf(nfn, sizeof(nfn), "%s~", filename);
+						rename(filename, nfn);
+						file.open(filename, std::ios::out | std::ios::binary | std::ios::trunc);
+						if (!file.is_open()) {
+							return false;
+						}
+						file.write(conf, (p - conf));     // write the leadup
+						file.write(value, strlen(value)); // write the new data
+						file.write(ep, limit - ep);       // write the rest of the file
+						file.close();
+
+						snprintf(
+						    nfn, sizeof(nfn), "%s", filename); // we have to do this to prevent overwriting our own filename buffer
+						Load(nfn);
+						return true;
+					}
+				}
+			}
+		}
+		p  = strstr(op + 1, key);
+		op = p;
+	}
+
+	/*
+	 * If we didn't find our parameter in the config file, then add it.
+	 */
+	{
+		char sep[CONFPARSE_MAX_VALUE_SIZE];
+		std::ofstream file;
+		file.open(filename, std::ios::out | std::ios::binary | std::ios::app);
+		if (!file.is_open()) {
+			return false;
+		}
+		snprintf(sep, sizeof(sep), "%s = %s\r\n", key, value);
+		file.write(sep, strlen(sep));
+		file.close();
+
+		snprintf(sep, sizeof(sep), "%s", filename); // we have to do this to prevent overwriting our own filename buffer
+		Load(sep);
+		return true;
+	}
+
+	return false;
+}
+
+bool Confparse::WriteBool(const char *key, bool value) {
+	char v[10];
+	snprintf(v, sizeof(v), "%s", value ? "true" : "false");
+	return WriteStr(key, v);
+};
+
+bool Confparse::WriteInt(const char *key, int value) {
+	char v[20];
+	snprintf(v, sizeof(v), "%d", value);
+	return WriteStr(key, v);
+};
+bool Confparse::WriteHex(const char *key, unsigned long value) {
+	char v[20];
+	snprintf(v, sizeof(v), "0x%lx", value);
+	return WriteStr(key, v);
+};
+bool Confparse::WriteFloat(const char *key, double value) {
+	char v[20];
+	snprintf(v, sizeof(v), "%f", value);
+	return WriteStr(key, v);
+};
