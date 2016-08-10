@@ -320,12 +320,8 @@ void BoardView::ColorPreferencesItem(const char *label, const char *butlabel, co
 	ImGui::ColorButton(ImColor(*c));
 	ImGui::SameLine();
 	ImGui::PushItemWidth(DPI(150));
-	if (ImGui::InputText(butlabel,
-	                     buf,
-	                     sizeof(buf),
-	                     ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_CharsHexadecimal,
-	                     nullptr,
-	                     buf)) {
+	if (ImGui::InputText(
+	        butlabel, buf, sizeof(buf), ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_CharsHexadecimal, nullptr, buf)) {
 		*c = byte4swap(strtol(buf, NULL, 16));
 		snprintf(buf, sizeof(buf), "0x%08lx", (long unsigned int)byte4swap(*c));
 		obvconfig.WriteStr(conflabel, buf);
@@ -345,17 +341,21 @@ void BoardView::ColorPreferences(void) {
 		ColorPreferencesItem("Board outline", "##BoardOutline", "boardOutline", DPI(300), &m_colors.boardOutlineColor);
 
 		ImGui::Dummy(ImVec2(1,DPI(10)));
-		ImGui::Text("Parts"); ImGui::Separator();
+		ImGui::Text("Parts");
+		ImGui::Separator();
 		ColorPreferencesItem("Outline", "##PartOutline", "partOutlineColor", DPI(300), &m_colors.partOutlineColor);
 		ColorPreferencesItem("Hull", "##PartHull", "partHullColor", DPI(300), &m_colors.partHullColor);
 		ColorPreferencesItem("Fill", "##PartFill", "partFillColor", DPI(300), &m_colors.partFillColor);
 		ColorPreferencesItem("Selected", "##PartSelected", "partHighlightedColor", DPI(300), &m_colors.partHighlightedColor);
-		ColorPreferencesItem("Fill (selected)", "##PartFillSelected", "partHighlightedFillColor", DPI(300), &m_colors.partHighlightedFillColor);
+		ColorPreferencesItem(
+		    "Fill (selected)", "##PartFillSelected", "partHighlightedFillColor", DPI(300), &m_colors.partHighlightedFillColor);
 		ColorPreferencesItem("Text", "##PartText", "partTextColor", DPI(300), &m_colors.partTextColor);
-		ColorPreferencesItem("Text background", "##PartTextBackground", "partTextBackgroundColor", DPI(300), &m_colors.partTextBackgroundColor);
+		ColorPreferencesItem(
+		    "Text background", "##PartTextBackground", "partTextBackgroundColor", DPI(300), &m_colors.partTextBackgroundColor);
 
 		ImGui::Dummy(ImVec2(1,DPI(10)));
-		ImGui::Text("Pins"); ImGui::Separator();
+		ImGui::Text("Pins");
+		ImGui::Separator();
 		ColorPreferencesItem("Default", "##PinDefault", "pinDefault", DPI(300), &m_colors.pinDefaultColor);
 		ColorPreferencesItem("Ground", "##PinGround", "pinGround", DPI(300), &m_colors.pinGroundColor);
 		ColorPreferencesItem("NC", "##PinNC", "pinNotConnected", DPI(300), &m_colors.pinNotConnectedColor);
@@ -367,15 +367,20 @@ void BoardView::ColorPreferences(void) {
 		ColorPreferencesItem("Same net", "##PinSameNet", "pinHighlightSameNet", DPI(300), &m_colors.pinHighlightSameNetColor);
 
 		ImGui::Dummy(ImVec2(1,DPI(10)));
-		ImGui::Text("Annotations"); ImGui::Separator();
+		ImGui::Text("Annotations");
+		ImGui::Separator();
 		ColorPreferencesItem("Box", "##AnnBox", "annotationBoxColor", DPI(300), &m_colors.annotationBoxColor);
 		ColorPreferencesItem("Stalk", "##AnnStalk", "annotationStalkColor", DPI(300), &m_colors.annotationStalkColor);
 		ColorPreferencesItem("Popup text", "##AnnPopupText", "annotationPopupText", DPI(300), &m_colors.annotationPopupTextColor);
-		ColorPreferencesItem("Popup background", "##AnnPopupBackground", "annotationPopupBackground", DPI(300), &m_colors.annotationPopupBackgroundColor);
-
+		ColorPreferencesItem("Popup background",
+		                     "##AnnPopupBackground",
+		                     "annotationPopupBackground",
+		                     DPI(300),
+		                     &m_colors.annotationPopupBackgroundColor);
 
 		ImGui::Dummy(ImVec2(1,DPI(10)));
-		ImGui::Text("Masks"); ImGui::Separator();
+		ImGui::Text("Masks");
+		ImGui::Separator();
 		ColorPreferencesItem("Pins", "##MaskPins", "selectedMaskPins", DPI(300), &m_colors.selectedMaskPins);
 		ColorPreferencesItem("Parts", "##MaskParts", "selectedMaskParts", DPI(300), &m_colors.selectedMaskParts);
 		ColorPreferencesItem("Outline", "##MaskOutline", "selectedMaskOutline", DPI(300), &m_colors.selectedMaskOutline);
