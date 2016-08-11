@@ -9,6 +9,10 @@ matrix:
   include:
     - os: osx
       compiler: clang
+      env: DEPLOY=yes
+    - os: linux
+      compiler: gcc
+      env: CROSS=mingw64 DEPLOY=yes
 
 dist: trusty
 sudo: required
@@ -25,7 +29,19 @@ addons:
 install: |-
   if [ "$TRAVIS_OS_NAME" == "linux" ]
   then
-    sudo apt-get -qy install libsdl2-dev libgtk-3-dev
+    if [ "$CROSS" == "mingw64" ] # Cross compiling for Windows
+    then
+      sudo add-apt-repository "deb http://fr.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse" # We need an up-to-date MinGW
+      sudo apt-get update
+      sudo apt-get install -t xenial gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw32-runtime
+      wget https://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz # Manually install the SDL2 mingw dev files
+      tar -xf SDL2-devel-2.0.4-mingw.tar.gz
+      pushd SDL2-2.0.4
+      sudo make cross CROSS_PATH=/usr
+      popd
+    else
+      sudo apt-get -qy install libsdl2-dev libgtk-3-dev
+    fi
   elif [ "$TRAVIS_OS_NAME" == "osx" ]
   then
     brew update
@@ -36,13 +52,23 @@ script: |-
   if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
   ./build.sh
 
+
+before_deploy: |-
+  if [ "$TRAVIS_OS_NAME" == "osx" ]
+  then
+    export DEPLOY_FILES=$(ls OpenBoardView-*.dmg)
+  elif [ "$CROSS" == "mingw64" ]
+  then
+    export DEPLOY_FILES=bin/openboardview.exe
+  fi
+
 deploy:
   provider: releases
   api_key:
-    secure: ENCRYPTED_API_KEY
+    secure: GMwaLDv8s6KSkndBK7vfa9bkd4Opx/zNNXd0046cErGCwhtWNtU8hqcsJi0KrlO36nozDYoyDGjoXTLMYr4myY9gSRol2JGHHyQecXxYvb28QioSAeTeYa9lFcV0N7bGynMszb8ZC6dJJ4myD3panKe7dHgQz+5w+m5KedLWRNgArUE+OfeZm01gy88U6nEkt5oMsUZSW09q4x23V9I+vt+uljnJ10lNPqMoqZycwvKJYQTzs2BABbyWfHIp1S1ocnuxYALakGPwEupwJeZ55qWkgb9gXdKzOqurqTyWnRY96+XPNeyEpj+qcr1N7Q4pvOSXo0E0hBGjgUY49K8dgAC2xl5hqfFpMj9p32Z1LoOAfMtsg6pvWkW5qfpIofZZQgL72DTeHGvUyQf1WmDFaCql5ZNHI+kYKFlkefzGkJkmvnJcCHat1LpvlQ3iDex8y7ttUUva/N0jP/GnsY+8gw5gBZ4cLYxlKoooU9ETgrWHB2JZmO3lxEDKakHIUE5z+mX6VA32TsGlPB/Ajt0tCNlMZPI3YKs1Eww8DaqtlctKwnjQu0AeRhwqIZtEn9mYFrzGJDLZasVs7kBEkBzGWcEo/SaeJoTFSEd/jYlYf3jTu2s0trwu9GO0BzAIVGIzmGBq2jhb8rbzwIj0Rv2EM7oe4eUuislLNHwVVkW5gQs=
   file_glob: true
-  file: OpenBoardView-*.dmg
+  file: "${DEPLOY_FILES}"
   skip_cleanup: true
   on:
     tags: true
-    condition: "$TRAVIS_OS_NAME == osx"
+    condition: "$DEPLOY == yes"
