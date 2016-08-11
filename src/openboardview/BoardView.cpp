@@ -223,6 +223,8 @@ style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.35f
 }
 
 int BoardView::LoadFile( char *filename ) {
+	m_lastFileOpenWasInvalid = true;
+	m_validBoard             = false;
     if (filename) {
       char *ext = strrchr(filename, '.');
 		if (ext) {
@@ -253,6 +255,8 @@ int BoardView::LoadFile( char *filename ) {
       if (buffer) {
         BRDFile *file = nullptr;
 
+			//			file->valid = false;
+
 			if (strcmp(ext, ".fz") == 0) { // Since it is encrypted we cannot use the below logic. Trust the ext.
 				file = new FZFile(buffer, buffer_size, FZKey);
 			} else if (BRDFile::verifyFormat(buffer, buffer_size))
@@ -277,9 +281,11 @@ int BoardView::LoadFile( char *filename ) {
 				m_annotations.Load();
 
 				CenterView();
+				m_lastFileOpenWasInvalid = false;
+				m_validBoard             = true;
 
         } else {
-          m_lastFileOpenWasInvalid = true;
+				m_validBoard = false;
           delete file;
         }
         free(buffer);
@@ -1517,8 +1523,10 @@ void BoardView::Update() {
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImColor(m_colors.backgroundColor));
 
 	ImGui::Begin("surface", nullptr, draw_surface_flags);
+	if (m_validBoard) {
 	HandleInput();
-	if (m_file) DrawBoard();
+		DrawBoard();
+	}
 	ImGui::End();
 	ImGui::PopStyleColor();
 
@@ -1602,6 +1610,8 @@ void BoardView::HandleInput() {
 #define KM(x) (((x)&0xFF) | 0x100)
 #endif
 
+	if (!m_board || (!m_file)) return;
+
 	const ImGuiIO &io = ImGui::GetIO();
 
 	if (ImGui::IsWindowHovered()) {
@@ -1621,8 +1631,9 @@ void BoardView::HandleInput() {
 			m_needsRedraw = true;
 		} else {
 
+			if (m_lastFileOpenWasInvalid == false) {
 			// Conext menu
-			if (m_file && m_board && ImGui::IsMouseClicked(1)) {
+				if (!m_lastFileOpenWasInvalid && m_file && m_board && ImGui::IsMouseClicked(1)) {
 				if (m_annotations_active) {
 				// Build context menu here, for annotations and inspection
 				//
@@ -1637,11 +1648,11 @@ void BoardView::HandleInput() {
 				}
 
 				// Flip the board with the middle click
-			} else if (m_file && m_board && ImGui::IsMouseReleased(2)) {
+				} else if (!m_lastFileOpenWasInvalid && m_file && m_board && ImGui::IsMouseReleased(2)) {
 				FlipBoard();
 
 				// Else, click to select pin
-			} else if (m_file && m_board && ImGui::IsMouseReleased(0) && !m_draggingLastFrame) {
+				} else if (!m_lastFileOpenWasInvalid && m_file && m_board && ImGui::IsMouseReleased(0) && !m_draggingLastFrame) {
 				ImVec2 spos = ImGui::GetMousePos();
 				ImVec2 pos = ScreenToCoord(spos.x, spos.y);
 
@@ -1727,6 +1738,7 @@ void BoardView::HandleInput() {
 
 		Zoom(io.MousePos.x, io.MousePos.y, mwheel);
 		}
+	}
 	}
 
 	if ((!io.WantCaptureKeyboard)) {
