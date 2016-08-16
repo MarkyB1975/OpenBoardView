@@ -1,12 +1,13 @@
 #ifdef _WIN32
 
-#include "platform.h"
+#include "platform.h" // Should be kept first
 #include "imgui/imgui.h"
 #include "utf8/utf8.h"
 #include <assert.h>
 #include <codecvt>
 #include <iostream>
 #include <locale>
+#include <shlobj.h>
 #include <stdint.h>
 #include <winnls.h>
 #ifdef ENABLE_SDL2
@@ -155,6 +156,25 @@ const std::vector<char> load_font(const std::string &name) {
 	}
 	DeleteObject(fontHandle);
 	return data;
+}
+
+const std::string get_user_dir(const UserDir userdir) {
+	int cdret = 0;
+	std::string configPath;
+	PWSTR envVar = nullptr;
+	if (userdir == UserDir::Config) SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &envVar);
+	else if (userdir == UserDir::Data) SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &envVar);
+
+	if (envVar) {
+		configPath = utf16_to_utf8(envVar);
+		configPath += "\\OpenBoardView\\";
+		cdret = CreateDirectoryW(utf8_to_wchar("\\\\?\\" + configPath), NULL);
+	}
+	CoTaskMemFree(envVar);
+
+	if (configPath.empty() || ( cdret == 0 && GetLastError() != ERROR_ALREADY_EXISTS ))
+		configPath = ".\\"; // Fallback to current dir
+	return configPath;
 }
 
 #endif
