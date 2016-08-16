@@ -1,7 +1,7 @@
 #ifdef _WIN32
 
+#include "platform.h" // Should be kept first
 #include "imgui/imgui.h"
-#include "platform.h"
 #include "utf8/utf8.h"
 #include <assert.h>
 #include <codecvt>
@@ -9,6 +9,7 @@
 #include <locale>
 #include <stdint.h>
 #include <winnls.h>
+#include <shlobj.h>
 
 wchar_t *utf8_to_wide(const char *s) {
 	size_t len   = utf8len(s);
@@ -83,12 +84,32 @@ char *show_file_picker() {
 	return nullptr;
 }
 
+const std::string utf16_to_utf8(const std::wstring &text) {
+// See https://connect.microsoft.com/VisualStudio/feedback/details/1348277/link-error-when-using-std-codecvt-utf8-utf16-char16-t
+#if defined(_MSC_VER) && _MSC_VER <= 1900 // Should be fixed "in the next major version"
+	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}.to_bytes(reinterpret_cast<const wchar_t *>(text.c_str()));
+#else
+	return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(reinterpret_cast<const char16_t *>(text.c_str()));
+#endif
+}
+
+const std::string wchar_to_utf8(const wchar_t *text) {
+	return std::string(utf16_to_utf8(std::wstring(text)));
+}
+
+const std::u16string utf8_to_utf16(const std::string &text) {
+	return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(text.c_str());
+}
+
+const wchar_t* utf8_to_wchar(const std::string &text) {
+	return reinterpret_cast<const wchar_t *>(utf8_to_utf16(text).c_str());
+}
+
 const std::vector<char> load_font(const std::string &name) {
 	std::vector<char> data;
 	HFONT fontHandle;
 
-	auto u16name = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(name.c_str());
-	auto wname = reinterpret_cast<const wchar_t *>(u16name.c_str());
+	auto wname = utf8_to_wchar(name);
 
 	fontHandle = CreateFont(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, name.empty() ? NULL : wname);
 	if (!fontHandle) {
@@ -120,6 +141,23 @@ const std::vector<char> load_font(const std::string &name) {
 	}
 	DeleteObject(fontHandle);
 	return data;
+}
+
+const std::string get_config_dir() {
+	int cdret = 0;
+	std::string configPath;
+	PWSTR envVar = nullptr;
+	SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &envVar);
+	if (envVar) {
+		configPath = utf16_to_utf8(envVar);
+		configPath += "\\OpenBoardView\\";
+		cdret = CreateDirectoryW(utf8_to_wchar("\\\\?\\" + configPath), NULL);
+	}
+	CoTaskMemFree(envVar);
+
+	if (configPath.empty() || ( cdret == 0 && GetLastError() != ERROR_ALREADY_EXISTS ))
+		configPath = ".\\"; // Fallback to current dir
+	return configPath;
 }
 
 #endif
