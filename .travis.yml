@@ -11,7 +11,7 @@ matrix:
       env: DEPLOY=yes
     - os: osx
       compiler: clang
-      env: DEPLOY=yes
+      env: DEPLOY=yes DEPLOY_DEB=yes
     - os: linux
       compiler: gcc
       env: CROSS=mingw64 DEPLOY=yes
@@ -53,7 +53,7 @@ install: |-
 script: |-
   if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
   ./build.sh
-  if [ "$TRAVIS_OS_NAME" == "linux" -a "$CXX" = "g++" ]
+  if [ "$DEPLOY_DEB" == "yes" ]
   then
     pushd release_build
     make package
