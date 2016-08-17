@@ -69,7 +69,7 @@ before_deploy: |-
     export DEPLOY_FILES=bin/openboardview.exe
   elif [ "$CXX" = "g++" ]
   then
-    export DEPLOY_FILES=$(ls OpenBoardView-*.dev)
+    export DEPLOY_FILES=$(ls OpenBoardView-*.deb)
   fi
 
 deploy:
