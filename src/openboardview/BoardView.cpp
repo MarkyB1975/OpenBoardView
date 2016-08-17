@@ -1,7 +1,7 @@
+#include "platform.h" // Should be kept first
+#include "utf8/utf8.h"
 #include "BoardView.h"
 #include "history.h"
-#include "platform.h"
-#include "utf8/utf8.h"
 
 #include <algorithm>
 #include <cmath>

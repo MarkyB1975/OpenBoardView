@@ -1,6 +1,5 @@
 #ifndef _WIN32
 
-#define _CRT_SECURE_NO_WARNINGS 1
 #include "imgui/imgui.h"
 #include "platform.h"
 #include <SDL2/SDL.h>
@@ -8,6 +7,8 @@
 #include <fstream>
 #include <iostream>
 #include <stdint.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef ENABLE_GTK
 #include <gtk/gtk.h>
@@ -205,6 +206,41 @@ const std::string get_font_path(const std::string &name) {
 
 	FcPatternDestroy(pat);
 	return path;
+}
+#endif
+
+// Return true upon successful directory creation or if path was an existing directory
+bool create_dir(const std::string &path) {
+	struct stat st;
+	int sr;
+	sr = stat(path.c_str(), &st);
+	if (sr == -1) {
+		mkdir(path.c_str(), S_IRWXU);
+		sr = stat(path.c_str(), &st);
+	}
+	if ((sr == 0) && (S_ISDIR(st.st_mode)))
+		return true;
+	return false;
+}
+
+#ifndef __APPLE__
+const std::string get_config_dir() {
+	std::string configPath;
+	const char *envVar = std::getenv("XDG_CONFIG_HOME"); 
+	if (envVar) configPath = std::string(envVar); // envVar may be NULL
+	if (configPath.empty()) { // envVar may be empty
+		envVar = getenv("HOME");
+		if (envVar) configPath = std::string(envVar);
+		if (!configPath.empty()) configPath += "/.config/";
+	}
+	if (!configPath.empty()) {
+		if (create_dir(configPath)) { // Create parent (.config) dir
+			configPath += "openboardview/";
+			if (create_dir(configPath))
+				return configPath;
+		}
+	}
+	return "./"; // Something went wrong, use current dir
 }
 #endif
 

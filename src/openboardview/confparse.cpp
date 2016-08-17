@@ -171,7 +171,7 @@ Confparse::~Confparse(void) {
 	if (conf) free(conf);
 }
 
-int Confparse::SaveDefault(const char *utf8_filename) {
+int Confparse::SaveDefault(const std::string &utf8_filename) {
 	std::ofstream file;
 	file.open(utf8_filename, std::ios::out | std::ios::binary | std::ios::ate);
 
@@ -186,7 +186,7 @@ int Confparse::SaveDefault(const char *utf8_filename) {
 		return 1;
 }
 
-int Confparse::Load(const char *utf8_filename) {
+int Confparse::Load(const std::string &utf8_filename) {
 	std::ifstream file;
 	file.open(utf8_filename, std::ios::in | std::ios::binary | std::ios::ate);
 	if (!file.is_open()) {
@@ -198,7 +198,7 @@ int Confparse::Load(const char *utf8_filename) {
 		return (SaveDefault(utf8_filename));
 	}
 
-	snprintf(filename, CONFPARSE_FILENAME_MAX, "%s", utf8_filename);
+	filename = utf8_filename;
 
 	std::streampos sz = file.tellg();
 	buffer_size       = sz;
@@ -365,7 +365,7 @@ bool Confparse::WriteStr(const char *key, char *value) {
 	int keylen;
 
 	if (!conf) return false;
-	if (!filename) return false;
+	if (filename.empty()) return false;
 	if (!value) return false;
 	if (!key) return false;
 
@@ -421,11 +421,10 @@ bool Confparse::WriteStr(const char *key, char *value) {
 					}
 
 					{
-						char nfn[CONFPARSE_FILENAME_MAX];
+						std::string nfn = filename + "~";
 						std::ofstream file;
 
-						snprintf(nfn, sizeof(nfn), "%s~", filename);
-						rename(filename, nfn);
+						rename(filename.c_str(), nfn.c_str());
 						file.open(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 						if (!file.is_open()) {
 							return false;
@@ -435,9 +434,7 @@ bool Confparse::WriteStr(const char *key, char *value) {
 						file.write(ep, limit - ep);       // write the rest of the file
 						file.close();
 
-						snprintf(
-						    nfn, sizeof(nfn), "%s", filename); // we have to do this to prevent overwriting our own filename buffer
-						Load(nfn);
+						Load(filename);
 						return true;
 					}
 				}
@@ -461,8 +458,7 @@ bool Confparse::WriteStr(const char *key, char *value) {
 		file.write(sep, strlen(sep));
 		file.close();
 
-		snprintf(sep, sizeof(sep), "%s", filename); // we have to do this to prevent overwriting our own filename buffer
-		Load(sep);
+		Load(filename);
 		return true;
 	}
 
