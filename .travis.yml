@@ -67,7 +67,7 @@ before_deploy: |-
   elif [ "$CROSS" == "mingw64" ]
   then
     export DEPLOY_FILES=bin/openboardview.exe
-  elif [ "$CXX" = "g++" ]
+  elif [ "$DEPLOY_DEB" == "yes" ]
   then
     export DEPLOY_FILES=$(ls OpenBoardView-*.deb)
   fi
