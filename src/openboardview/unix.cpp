@@ -209,6 +209,20 @@ const std::string get_font_path(const std::string &name) {
 }
 #endif
 
+// Return true upon successful directory creation or if path was an existing directory
+bool create_dir(const std::string &path) {
+	struct stat st;
+	int sr;
+	sr = stat(path.c_str(), &st);
+	if (sr == -1) {
+		mkdir(path.c_str(), S_IRWXU);
+		sr = stat(path.c_str(), &st);
+	}
+	if ((sr == 0) && (S_ISDIR(st.st_mode)))
+		return true;
+	return false;
+}
+
 #ifndef __APPLE__
 const std::string get_config_dir() {
 	std::string configPath;
@@ -219,22 +233,14 @@ const std::string get_config_dir() {
 		if (envVar) configPath = std::string(envVar);
 		if (!configPath.empty()) configPath += "/.config/";
 	}
-	if (configPath.empty()) configPath += "./"; // Use current dir if neither $XDG_CONFIG_HOME nor $HOME is set
-	else configPath += "openboardview/";
-		
-
-	struct stat st;
-	int sr;
-
-	sr = stat(configPath.c_str(), &st);
-	if (sr == -1) {
-		mkdir(configPath.c_str(), S_IRWXU);
-		sr = stat(configPath.c_str(), &st);
+	if (!configPath.empty()) {
+		if (create_dir(configPath)) { // Create parent (.config) dir
+			configPath += "openboardview/";
+			if (create_dir(configPath))
+				return configPath;
+		}
 	}
-	if ((sr == 0) && (S_ISDIR(st.st_mode)))
-		return configPath;
-	else
-		return "./"; // Something went wrong, use current dir
+	return "./"; // Something went wrong, use current dir
 }
 #endif
 
