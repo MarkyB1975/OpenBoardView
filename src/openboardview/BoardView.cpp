@@ -1549,8 +1549,6 @@ void BoardView::Update() {
 			}
 		}
 
-
-
 		ImGui::SameLine();
 		ImGui::Dummy(ImVec2(DPI(40), 1));
 
@@ -2780,7 +2778,8 @@ inline void BoardView::DrawParts(ImDrawList *draw) {
 		 * overhead but it keeps the code simpler and saves us replicating things.
 		 */
 
-			if ((pincount == 3) && (abs(aspect > 0.5)) && ((strchr("DQZ", p0) || (strchr("DQZ", p1)) || strcmp(p_part->name.c_str(),"LED")))) {
+			if ((pincount == 3) && (abs(aspect > 0.5)) &&
+			    ((strchr("DQZ", p0) || (strchr("DQZ", p1)) || strcmp(p_part->name.c_str(), "LED")))) {
 				outline_pt *hpt;
 
 						memcpy(part->outline, dbox, sizeof(dbox));
