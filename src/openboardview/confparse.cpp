@@ -396,13 +396,12 @@ bool Confparse::WriteStr(const char *key, char *value) {
 
 	op = p = strstr(conf, key);
 	if (p == NULL) {
-		char nfn[CONFPARSE_FILENAME_MAX];
 		char buf[1024];
 		size_t bs;
+		const std::string nfn = filename + "~";
 		std::ofstream file;
 
-		snprintf(nfn, sizeof(nfn), "%s~", filename);
-		rename(filename, nfn);
+		rename(filename.c_str(), nfn.c_str());
 		file.open(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 		if (!file.is_open()) {
 			return false;
@@ -413,8 +412,7 @@ bool Confparse::WriteStr(const char *key, char *value) {
 		file.flush();
 		file.close();
 
-		snprintf(nfn, sizeof(nfn), "%s", filename); // we have to do this to prevent overwriting our own filename buffer
-		Load(nfn);
+		Load(filename);
 		return true;
 	}
 
@@ -465,7 +463,7 @@ bool Confparse::WriteStr(const char *key, char *value) {
 					}
 
 					{
-						std::string nfn = filename + "~";
+						const std::string nfn = filename + "~";
 						std::ofstream file;
 
 						rename(filename.c_str(), nfn.c_str());
