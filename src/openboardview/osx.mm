@@ -1,5 +1,6 @@
 #ifdef __APPLE__
 
+#include "platform.h"
 #include <string>
 #import <Cocoa/Cocoa.h>
 
