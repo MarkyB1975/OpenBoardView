@@ -220,11 +220,12 @@ int main(int argc, char **argv) {
 	 * stuff we need (currently file-history and configuration file)
 	 *
 	 */
-	configDir = get_config_dir();
-	if (!configDir.empty()) {
-		app.obvconfig.Load(configDir + "obv.conf");
+	configDir = get_user_dir(UserDir::Config);
+	if (!configDir.empty()) app.obvconfig.Load(configDir + "obv.conf");
 
-		app.fhistory.Set_filename(configDir + "obv.history");
+	std::string dataDir = get_user_dir(UserDir::Data);
+	if (!dataDir.empty()) {
+		app.fhistory.Set_filename(dataDir + "obv.history");
 		app.fhistory.Load();
 	}
 

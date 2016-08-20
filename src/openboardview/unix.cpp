@@ -209,6 +209,14 @@ const std::string get_font_path(const std::string &name) {
 }
 #endif
 
+// Return an environment variable value in an std::string
+const std::string get_env_var(const std::string varname) {
+	std::string envVar;
+	const char *cEnvVar = std::getenv(varname.c_str());
+	if (cEnvVar) envVar = std::string(cEnvVar); // cEnvVar may be null
+	return envVar;
+}
+
 // Return true upon successful directory creation or if path was an existing directory
 bool create_dir(const std::string &path) {
 	struct stat st;
@@ -223,22 +231,33 @@ bool create_dir(const std::string &path) {
 	return false;
 }
 
-#ifndef __APPLE__
-const std::string get_config_dir() {
-	std::string configPath;
-	const char *envVar = std::getenv("XDG_CONFIG_HOME"); 
-	if (envVar) configPath = std::string(envVar); // envVar may be NULL
-	if (configPath.empty()) { // envVar may be empty
-		envVar = getenv("HOME");
-		if (envVar) configPath = std::string(envVar);
-		if (!configPath.empty()) configPath += "/.config/";
+// Recursively create directories
+bool create_dirs(const std::string &path) {
+	for (size_t pos = 0; (pos = path.find("/", pos+1)) != std::string::npos; ) {
+		if (!create_dir(path.substr(0, pos+1))) return false;
 	}
-	if (!configPath.empty()) {
-		if (create_dir(configPath)) { // Create parent (.config) dir
-			configPath += "openboardview/";
-			if (create_dir(configPath))
-				return configPath;
+	return true;
+}
+
+#ifndef __APPLE__
+const std::string get_user_dir(const UserDir dir) {
+	std::string path;
+	std::string envVar;
+
+	if (dir == UserDir::Config) envVar = get_env_var("XDG_CONFIG_HOME");
+	else if (dir == UserDir::Data) envVar = get_env_var("XDG_DATA_HOME");
+
+	if (envVar.empty()) {
+		envVar = get_env_var("HOME");
+		if (!envVar.empty()) {
+			path += std::string(envVar);
+			if (dir == UserDir::Config) path += "/.config";
+			else if (dir == UserDir::Data) path += "/.local/share";
 		}
+	}
+	if (!path.empty()) {
+		path += "/openboardview/";
+		if (create_dirs(path)) return path; // Check if dir already exists and create it otherwise
 	}
 	return "./"; // Something went wrong, use current dir
 }
