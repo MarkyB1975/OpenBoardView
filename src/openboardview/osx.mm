@@ -44,7 +44,8 @@ const std::string get_font_path(const std::string &name) {
 #endif
 
 // Inspired by https://developer.apple.com/library/mac/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/ManagingFIlesandDirectories/ManagingFIlesandDirectories.html
-const std::string get_config_dir() {
+// userdir is ignored for now since common usage puts both config file and history file in ApplicationSupport directory
+const std::string get_user_dir(const UserDir userdir) {
 	std::string configPath;
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSURL *configURL = nil;

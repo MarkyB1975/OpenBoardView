@@ -143,11 +143,13 @@ const std::vector<char> load_font(const std::string &name) {
 	return data;
 }
 
-const std::string get_config_dir() {
+const std::string get_user_dir(const UserDir userdir) {
 	int cdret = 0;
 	std::string configPath;
 	PWSTR envVar = nullptr;
-	SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &envVar);
+	if (userdir == UserDir::Config) SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &envVar);
+	else if (userdir == UserDir::Data) SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &envVar);
+
 	if (envVar) {
 		configPath = utf16_to_utf8(envVar);
 		configPath += "\\OpenBoardView\\";

@@ -240,19 +240,19 @@ bool create_dirs(const std::string &path) {
 }
 
 #ifndef __APPLE__
-const std::string get_user_dir(const UserDir dir) {
+const std::string get_user_dir(const UserDir userdir) {
 	std::string path;
 	std::string envVar;
 
-	if (dir == UserDir::Config) envVar = get_env_var("XDG_CONFIG_HOME");
-	else if (dir == UserDir::Data) envVar = get_env_var("XDG_DATA_HOME");
+	if (userdir == UserDir::Config) envVar = get_env_var("XDG_CONFIG_HOME");
+	else if (userdir == UserDir::Data) envVar = get_env_var("XDG_DATA_HOME");
 
 	if (envVar.empty()) {
 		envVar = get_env_var("HOME");
 		if (!envVar.empty()) {
 			path += std::string(envVar);
-			if (dir == UserDir::Config) path += "/.config";
-			else if (dir == UserDir::Data) path += "/.local/share";
+			if (userdir == UserDir::Config) path += "/.config";
+			else if (userdir == UserDir::Data) path += "/.local/share";
 		}
 	}
 	if (!path.empty()) {
