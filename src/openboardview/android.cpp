@@ -48,6 +48,7 @@ std::string get_asset_path(const char* asset) {
 	return path;
 }
 
+#if 0
 unsigned char *LoadAsset(int *asset_size, int asset_id) {
 	char *filename;
 	if (asset_id == ASSET_FIRA_SANS)
@@ -78,4 +79,25 @@ unsigned char *LoadAsset(int *asset_size, int asset_id) {
 
 	*asset_size = nb_read_total;
 	return res;
+}
+#endif
+
+// Dummy, there is no proper way to search for or enumerate fonts so force Droid Sans
+const std::string get_font_path(const std::string &name) {
+	return "/system/fonts/DroidSans.ttf";
+}
+
+// Don't care about userdir and put everything in the same dir
+// Either appplication external storage if available or internal storage
+const std::string get_user_dir(const UserDir userdir) {
+	std::string path;
+	auto extState = SDL_AndroidGetExternalStorageState();
+	if (extState == SDL_ANDROID_EXTERNAL_STORAGE_WRITE)
+		path = std::string(SDL_AndroidGetExternalStoragePath());
+	else
+		path = std::string(SDL_AndroidGetInternalStoragePath());
+	if (create_dirs(path))
+		return path + "/";
+	else
+		return "./";
 }
