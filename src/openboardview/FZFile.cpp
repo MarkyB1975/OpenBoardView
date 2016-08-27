@@ -172,8 +172,6 @@ void FZFile::update_counts() {
 }
 
 FZFile::FZFile(const char *buf, size_t buffer_size, uint32_t *fzkey) {
-	char **lines_begin = nullptr;
-
 	char *saved_locale;
 	saved_locale = setlocale(LC_NUMERIC, "C"); // Use '.' as delimiter for strtod
 
@@ -206,8 +204,7 @@ FZFile::FZFile(const char *buf, size_t buffer_size, uint32_t *fzkey) {
 	std::unordered_map<std::string, int> parts_id; // map between part name and part number
 
 	char **lines = stringfile(content);
-	if (!lines) return;
-	lines_begin = lines;
+	ENSURE(lines);
 
 	while (*lines) {
 		char *line = *lines;
@@ -240,14 +237,10 @@ FZFile::FZFile(const char *buf, size_t buffer_size, uint32_t *fzkey) {
 			case 1: { // Parts
 				BRDPart part;
 				part.name = READ_STR();
-				char *cic;
-				cic = READ_STR();
-				char *sname;
-				sname = READ_STR();
-				char *smirror;
-				smirror = READ_STR();
-				char *srotate;
-				srotate = READ_STR();
+				/*char *cic =*/ READ_STR();
+				/*char *sname =*/ READ_STR();
+				char *smirror = READ_STR();
+				/*char *srotate =*/ READ_STR();
 				if (!strcmp(smirror, "YES"))
 					part.type = 10; // SMD part on top
 				else
@@ -259,24 +252,16 @@ FZFile::FZFile(const char *buf, size_t buffer_size, uint32_t *fzkey) {
 			case 2: { // Pins
 				BRDPin pin;
 				pin.net = READ_STR();
-				char *part;
-				part = READ_STR();
+				char *part = READ_STR();
 				pin.part = parts_id.at(part);
 				pin.snum = READ_STR();
-
-				char *name;
-				name = READ_STR();
-
-				double posx;
-				posx = READ_DOUBLE();
+				/*char *name =*/ READ_STR();
+				double posx = READ_DOUBLE();
 				pin.pos.x = posx;
-				double posy;
-				posy = READ_DOUBLE();
+				double posy = READ_DOUBLE();
 				pin.pos.y = posy;
-
-				pin.probe = READ_INT();
-				double radius;
-				radius = READ_DOUBLE();
+				pin.probe = READ_UINT();
+				double radius = READ_DOUBLE();
 				radius /= 100;
 				if (radius < 0.5f) radius = 0.5f;
 				pin.radius                = radius;
@@ -286,27 +271,20 @@ FZFile::FZFile(const char *buf, size_t buffer_size, uint32_t *fzkey) {
 				p += 2; // Skip "Y!"
 				BRDNail nail;
 				nail.net = READ_STR();
-				char *refdes;
-				refdes = READ_STR();
-				int pinnumber;
-				pinnumber = READ_INT();
-				char *pinname;
-				pinname = READ_STR();
+				/*char *refdes =*/ READ_STR();
+				/*int pinnumber =*/ READ_INT(); // uint
+				/*char *pinname =*/ READ_STR();
 
-				double posx;
-				posx = READ_DOUBLE();
+				double posx = READ_DOUBLE();
 				nail.pos.x = posx;
-				double posy;
-				posy = READ_DOUBLE();
+				double posy = READ_DOUBLE();
 				nail.pos.y = posy;
-				char *loc;
-				loc = READ_STR();
+				char *loc = READ_STR();
 				if (!strcmp(loc, "T"))
 					nail.side = 1; // on top
 				else
 					nail.side = 2; // on bottom
-				double radius;
-				radius = READ_DOUBLE();
+				/*double radius =*/ READ_DOUBLE();
 				nails.push_back(nail);
 			} break;
 		}

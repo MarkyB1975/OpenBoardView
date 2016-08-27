@@ -44,8 +44,7 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 	int current_block = 0;
 
 	char **lines = stringfile(file_buf);
-	if (!lines) return;
-	char **lines_begin = lines;
+	ENSURE(lines);
 
 	while (*lines) {
 		char *line = *lines;
@@ -76,11 +75,10 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 		switch (current_block) {
 			case 1: { // Format
 				BRDPoint point;
-				double x;
-				x = READ_DOUBLE();
+
+				double x = READ_DOUBLE();
 				point.x = x * 1000.0f; // OBV uses integers
-				double y;
-				y = READ_DOUBLE();
+				double y = READ_DOUBLE();
 				point.y = y * 1000.0f;
 				format.push_back(point);
 			} break;
@@ -88,9 +86,9 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 				if (!strncmp(line, "Part", 4)) {
 					p += 4; // Skip "Part" string
 					BRDPart part;
+
 					part.name = READ_STR();
-					char *loc;
-					loc = READ_STR();
+					char *loc = READ_STR();
 					if (!strcmp(loc, "(T)"))
 						part.type = 10; // SMD part on top
 					else
@@ -99,23 +97,17 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 					parts.push_back(part);
 				} else {
 					BRDPin pin;
+
 					pin.part = parts.size();
-					int id;
-					id = READ_INT();
-					char *name;
-					name = READ_STR();
-					double posx;
-					posx = READ_DOUBLE();
+					/*int id =*/ READ_INT(); // uint
+					/*char *name =*/ READ_STR();
+					double posx = READ_DOUBLE();
 					pin.pos.x = posx * 1000.0f;
-					//		pin.pos.x = posx;
-					double posy;
-					posy = READ_DOUBLE();
+					double posy = READ_DOUBLE();
 					pin.pos.y = posy * 1000.0f;
-					//		pin.pos.y = posy;
-					int layer;
-					layer = READ_INT();
+					/*int layer =*/ READ_INT(); // uint
 					pin.net = READ_STR();
-					pin.probe = READ_INT();
+					pin.probe = READ_UINT();
 					pins.push_back(pin);
 					parts.back().end_of_pins = pins.size();
 				}
@@ -123,25 +115,20 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 			case 3: { // Nails
 				BRDNail nail;
 				p++; // Skip first char
-				nail.probe = READ_INT();
-				double posx;
-				posx = READ_DOUBLE();
+
+				nail.probe = READ_UINT();
+				double posx = READ_DOUBLE();
 				nail.pos.x = posx * 1000.0f;
-				double posy;
-				posy = READ_DOUBLE();
+				double posy = READ_DOUBLE();
 				nail.pos.y = posy * 1000.0f;
-				int type;
-				type = READ_INT();
-				char *grid;
-				grid = READ_STR();
-				char *loc;
-				loc = READ_STR();
+				/*int type =*/ READ_INT(); // uint
+				/*char *grid =*/ READ_STR();
+				char *loc = READ_STR();
 				if (!strcmp(loc, "(T)"))
 					nail.side = 1;
 				else
 					nail.side = 2;
-				char *netid;
-				netid = READ_STR();
+				/*char *netid =*/ READ_STR(); // uint
 				nail.net = READ_STR();
 				nails.push_back(nail);
 			} break;

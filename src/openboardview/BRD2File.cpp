@@ -15,8 +15,7 @@ bool BRD2File::verifyFormat(const char *buf, size_t buffer_size) {
 
 BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 	std::unordered_map<int, char *> nets; // Map between net id and net name
-	char **lines_begin = nullptr;
-	int num_nets       = 0;
+	unsigned int num_nets = 0;
 	BRDPoint max{0, 0}; // Top-right board boundary
 
 	ENSURE(buffer_size > 4);
@@ -34,7 +33,6 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 
 	char **lines = stringfile(file_buf);
 	ENSURE(lines)
-	lines_begin = lines;
 
 	while (*lines) {
 		char *line = *lines;
@@ -49,40 +47,33 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 		if (strstr(line, "BRDOUT:") == line) {
 			current_block = 1;
 			p += 7; // Skip "BRDOUT:"
-			num_format = READ_INT();
+			num_format = READ_UINT();
 			max.x = READ_INT();
 			max.y = READ_INT();
-			ENSURE(num_format >= 0);
-			ENSURE(max.x > 0);
-			ENSURE(max.y > 0);
 			continue;
 		}
 		if (strstr(line, "NETS:") == line) {
 			current_block = 2;
 			p += 5; // Skip "NETS:"
-			num_nets = READ_INT();
-			ENSURE(num_nets >= 0);
+			num_nets = READ_UINT();
 			continue;
 		}
 		if (strstr(line, "PARTS:") == line) {
 			current_block = 3;
 			p += 6; // Skip "PARTS:"
-			num_parts = READ_INT();
-			ENSURE(num_parts >= 0);
+			num_parts = READ_UINT();
 			continue;
 		}
 		if (strstr(line, "PINS:") == line) {
 			current_block = 4;
 			p += 5; // Skip "PINS:"
-			num_pins = READ_INT();
-			ENSURE(num_pins >= 0);
+			num_pins = READ_UINT();
 			continue;
 		}
 		if (strstr(line, "NAILS:") == line) {
 			current_block = 5;
 			p += 6; // Skip "NAILS:"
-			num_nails = READ_INT();
-			ENSURE(num_nails >= 0);
+			num_nails = READ_UINT();
 			continue;
 		}
 
@@ -99,23 +90,21 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 
 			case 2: { // Nets
 				ENSURE(nets.size() < num_nets);
-				int id;
-				id = READ_INT();
+				int id = READ_UINT();
 				nets[id] = READ_STR();
 			} break;
 
 			case 3: { // PARTS
 				ENSURE(parts.size() < num_parts);
 				BRDPart part;
-				int side;
 
 				part.name = READ_STR();
 				part.p1.x = READ_INT();
 				part.p1.y = READ_INT();
 				part.p2.x = READ_INT();
 				part.p2.y = READ_INT();
-				part.end_of_pins = READ_INT(); // Warning: not end but beginning in this format
-				side = READ_INT();
+				part.end_of_pins = READ_UINT(); // Warning: not end but beginning in this format
+				int side = READ_UINT();
 				if (side == 1)
 					part.type = 10; // SMD part on top
 				else if (side == 2)
@@ -127,12 +116,11 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 			case 4: { // PINS
 				ENSURE(pins.size() < num_pins);
 				BRDPin pin;
-				int netid, side;
 
 				pin.pos.x = READ_INT();
 				pin.pos.y = READ_INT();
-				netid = READ_INT();
-				pin.side = READ_INT();
+				int netid = READ_UINT();
+				pin.side = READ_UINT();
 
 				try {
 					pin.net = nets.at(netid);
@@ -148,13 +136,13 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 			case 5: { // NAILS
 				ENSURE(nails.size() < num_nails);
 				BRDNail nail;
-				int netid;
-				nail.probe = READ_INT();
+
+				nail.probe = READ_UINT();
 				nail.pos.x = READ_INT();
 				nail.pos.y = READ_INT();
-				netid = READ_INT();
+				int netid = READ_UINT();
 				nail.net = nets.at(netid);
-				nail.side = READ_INT();
+				nail.side = READ_UINT();
 				nails.push_back(nail);
 
 			} break;
@@ -227,5 +215,4 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 	}
 
 	valid = current_block != 0;
-#undef ENSURE
 }

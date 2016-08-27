@@ -117,17 +117,8 @@ BRDFile::BRDFile(const char *buf, size_t buffer_size) {
 	}
 
 	int current_block = 0;
-	num_format        = 0;
-	num_parts         = 0;
-	num_pins          = 0;
-	num_nails         = 0;
-	int format_idx    = 0;
-	int parts_idx     = 0;
-	int pins_idx      = 0;
-	int nails_idx     = 0;
 	char **lines      = stringfile(file_buf);
-	if (!lines) return;
-	char **lines_begin = lines;
+	ENSURE(lines);
 
 	while (*lines) {
 		char *line = *lines;
@@ -165,54 +156,47 @@ BRDFile::BRDFile(const char *buf, size_t buffer_size) {
 
 		switch (current_block) {
 			case 2: { // var_data
-				num_format = READ_INT();
-				num_parts = READ_INT();
-				num_pins = READ_INT();
-				num_nails = READ_INT();
-				ENSURE(num_format >= 0);
-				ENSURE(num_parts >= 0);
-				ENSURE(num_pins >= 0);
-				ENSURE(num_nails >= 0);
+				num_format = READ_UINT();
+				num_parts = READ_UINT();
+				num_pins = READ_UINT();
+				num_nails = READ_UINT();
 			} break;
 			case 3: { // Format
-				ENSURE(format_idx < num_format);
+				ENSURE(format.size() < num_format);
 				BRDPoint fmt;
 				fmt.x = strtol(p, &p, 10);
 				fmt.y = strtol(p, &p, 10);
 				format.push_back(fmt);
 			} break;
 			case 4: { // Parts
-				ENSURE(parts_idx < num_parts);
+				ENSURE(parts.size() < num_parts);
 				BRDPart part;
 				part.name = READ_STR();
-				part.type = READ_INT(); // Type and layer, actually.
-				part.end_of_pins = READ_INT();
+				part.type = READ_UINT(); // Type and layer, actually.
+				part.end_of_pins = READ_UINT();
 				ENSURE(part.end_of_pins <= num_pins);
 				parts.push_back(part);
-				parts_idx++;
 			} break;
 			case 5: { // Pins
-				ENSURE(pins_idx < num_pins);
+				ENSURE(pins.size() < num_pins);
 				BRDPin pin;
 				pin.pos.x = READ_INT();
 				pin.pos.y = READ_INT();
-				pin.probe = READ_INT();
-				pin.part = READ_INT();
-				pin.net = READ_STR();
+				pin.probe = READ_UINT();
+				pin.part = READ_UINT();
 				ENSURE(pin.part <= num_parts);
+				pin.net = READ_STR();
 				pins.push_back(pin);
-				pins_idx++;
 			} break;
 			case 6: { // Nails
-				ENSURE(nails_idx < num_nails);
+				ENSURE(nails.size() < num_nails);
 				BRDNail nail;
-				nail.probe = READ_INT();
+				nail.probe = READ_UINT();
 				nail.pos.x = READ_INT();
 				nail.pos.y = READ_INT();
-				nail.side = READ_INT();
+				nail.side = READ_UINT();
 				nail.net = READ_STR();
 				nails.push_back(nail);
-				nails_idx++;
 			} break;
 		}
 	}
