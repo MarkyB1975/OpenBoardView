@@ -219,8 +219,7 @@ int Confparse::Load(const std::string &utf8_filename) {
 	std::streampos sz = file.tellg();
 	buffer_size       = sz;
 	buffer_size++;
-	conf = (char *)malloc(buffer_size);
-	memset(conf, 0, buffer_size);
+	conf = (char *)calloc(1, buffer_size);
 	buffer_size--;
 	file.seekg(0, std::ios::beg);
 	file.read(conf, sz);

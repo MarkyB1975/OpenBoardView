@@ -28,20 +28,10 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 	char *saved_locale;
 	saved_locale = setlocale(LC_NUMERIC, "C"); // Use '.' as delimiter for strtod
 
-//	memset(this, 0, sizeof(*this));
-//#define ENSURE(X)                                                                                  \
-//	assert(X);                                                                                     \
-//	if (!(X))                                                                                      \
-//		goto FAIL_LABEL;
-#define ENSURE(X) \
-	assert(X);    \
-	if (!(X)) return;
-
-#define FAIL_LABEL fail
 	ENSURE(buffer_size > 4);
 	size_t file_buf_size = 3 * (1 + buffer_size);
-	file_buf             = (char *)malloc(file_buf_size);
-	memset(file_buf, 0, (3 * (1 + buffer_size)));
+	file_buf             = (char *)calloc(1, file_buf_size);
+	ENSURE(file_buf != nullptr);
 	memcpy(file_buf, buf, buffer_size);
 	file_buf[buffer_size] = 0;
 	// This is for fixing degenerate utf8
@@ -55,10 +45,8 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 
 	char **lines = stringfile(file_buf);
 	if (!lines) return;
-	//		goto fail;
 	char **lines_begin = lines;
-#undef FAIL_LABEL
-#define FAIL_LABEL fail_lines
+
 	while (*lines) {
 		char *line = *lines;
 		++lines;
@@ -89,10 +77,10 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 			case 1: { // Format
 				BRDPoint point;
 				double x;
-				LOAD_DOUBLE(x);
+				x = READ_DOUBLE();
 				point.x = x * 1000.0f; // OBV uses integers
 				double y;
-				LOAD_DOUBLE(y);
+				y = READ_DOUBLE();
 				point.y = y * 1000.0f;
 				format.push_back(point);
 			} break;
@@ -100,9 +88,9 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 				if (!strncmp(line, "Part", 4)) {
 					p += 4; // Skip "Part" string
 					BRDPart part;
-					LOAD_STR(part.name);
+					part.name = READ_STR();
 					char *loc;
-					LOAD_STR(loc);
+					loc = READ_STR();
 					if (!strcmp(loc, "(T)"))
 						part.type = 10; // SMD part on top
 					else
@@ -113,21 +101,21 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 					BRDPin pin;
 					pin.part = parts.size();
 					int id;
-					LOAD_INT(id);
+					id = READ_INT();
 					char *name;
-					LOAD_STR(name);
+					name = READ_STR();
 					double posx;
-					LOAD_DOUBLE(posx);
+					posx = READ_DOUBLE();
 					pin.pos.x = posx * 1000.0f;
 					//		pin.pos.x = posx;
 					double posy;
-					LOAD_DOUBLE(posy);
+					posy = READ_DOUBLE();
 					pin.pos.y = posy * 1000.0f;
 					//		pin.pos.y = posy;
 					int layer;
-					LOAD_INT(layer);
-					LOAD_STR(pin.net);
-					LOAD_INT(pin.probe);
+					layer = READ_INT();
+					pin.net = READ_STR();
+					pin.probe = READ_INT();
 					pins.push_back(pin);
 					parts.back().end_of_pins = pins.size();
 				}
@@ -135,26 +123,26 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 			case 3: { // Nails
 				BRDNail nail;
 				p++; // Skip first char
-				LOAD_INT(nail.probe);
+				nail.probe = READ_INT();
 				double posx;
-				LOAD_DOUBLE(posx);
+				posx = READ_DOUBLE();
 				nail.pos.x = posx * 1000.0f;
 				double posy;
-				LOAD_DOUBLE(posy);
+				posy = READ_DOUBLE();
 				nail.pos.y = posy * 1000.0f;
 				int type;
-				LOAD_INT(type);
+				type = READ_INT();
 				char *grid;
-				LOAD_STR(grid);
+				grid = READ_STR();
 				char *loc;
-				LOAD_STR(loc);
+				loc = READ_STR();
 				if (!strcmp(loc, "(T)"))
 					nail.side = 1;
 				else
 					nail.side = 2;
 				char *netid;
-				LOAD_STR(netid);
-				LOAD_STR(nail.net);
+				netid = READ_STR();
+				nail.net = READ_STR();
 				nails.push_back(nail);
 			} break;
 		}
@@ -168,9 +156,4 @@ BDVFile::BDVFile(const char *buf, size_t buffer_size) {
 	setlocale(LC_NUMERIC, saved_locale); // Restore locale
 
 	valid = current_block != 0;
-fail_lines:
-	free(lines_begin);
-fail:;
-#undef FAIL_LABEL
-#undef ENSURE
 }

@@ -6,15 +6,17 @@
 #include <string>
 #include <vector>
 
-#define LOAD_INT(var) var    = strtol(p, &p, 10)
-#define LOAD_DOUBLE(var) var = strtod(p, &p);
-#define LOAD_STR(var)                            \
-	while ((*p) && (isspace((uint8_t)*p))) ++p;  \
-	s = p;                                       \
-	while ((*p) && (!isspace((uint8_t)*p))) ++p; \
-	*p = 0;                                      \
-	p++;                                         \
-	var = fix_to_utf8(s, &arena, arena_end);
+#define ENSURE(X) assert(X);
+#define READ_INT() strtol(p, &p, 10);
+#define READ_DOUBLE() strtod(p, &p);
+#define READ_STR [&]() {                                      \
+		while ((*p) && (isspace((uint8_t)*p))) ++p;  \
+		s = p;                                       \
+		while ((*p) && (!isspace((uint8_t)*p))) ++p; \
+		*p = 0;                                      \
+		p++;                                         \
+		return fix_to_utf8(s, &arena, arena_end);    \
+	}
 
 static constexpr std::array<uint8_t, 4> signature = {0x23, 0xe2, 0x63, 0x28};
 

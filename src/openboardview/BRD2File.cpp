@@ -14,24 +14,15 @@ bool BRD2File::verifyFormat(const char *buf, size_t buffer_size) {
 }
 
 BRD2File::BRD2File(const char *buf, size_t buffer_size) {
-	memset(this, 0, sizeof(*this));
 	std::unordered_map<int, char *> nets; // Map between net id and net name
 	char **lines_begin = nullptr;
 	int num_nets       = 0;
 	BRDPoint max{0, 0}; // Top-right board boundary
 
-#define ENSURE(X)                               \
-	assert(X);                                  \
-	/*	if (!(X)) {                              \
-	        if (lines_begin) free(lines_begin); \
-	        assert(X);                          \
-	        return;                             \
-	    }*/
-
 	ENSURE(buffer_size > 4);
 	size_t file_buf_size = 3 * (1 + buffer_size);
-	file_buf             = (char *)malloc(file_buf_size);
-	memset(file_buf, 0, 3 * (1 + buffer_size));
+	file_buf             = (char *)calloc(1, file_buf_size);
+	ENSURE(file_buf != nullptr);
 	memcpy(file_buf, buf, buffer_size);
 	file_buf[buffer_size] = 0;
 	// This is for fixing degenerate utf8
@@ -58,9 +49,9 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 		if (strstr(line, "BRDOUT:") == line) {
 			current_block = 1;
 			p += 7; // Skip "BRDOUT:"
-			LOAD_INT(num_format);
-			LOAD_INT(max.x);
-			LOAD_INT(max.y);
+			num_format = READ_INT();
+			max.x = READ_INT();
+			max.y = READ_INT();
 			ENSURE(num_format >= 0);
 			ENSURE(max.x > 0);
 			ENSURE(max.y > 0);
@@ -69,28 +60,28 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 		if (strstr(line, "NETS:") == line) {
 			current_block = 2;
 			p += 5; // Skip "NETS:"
-			LOAD_INT(num_nets);
+			num_nets = READ_INT();
 			ENSURE(num_nets >= 0);
 			continue;
 		}
 		if (strstr(line, "PARTS:") == line) {
 			current_block = 3;
 			p += 6; // Skip "PARTS:"
-			LOAD_INT(num_parts);
+			num_parts = READ_INT();
 			ENSURE(num_parts >= 0);
 			continue;
 		}
 		if (strstr(line, "PINS:") == line) {
 			current_block = 4;
 			p += 5; // Skip "PINS:"
-			LOAD_INT(num_pins);
+			num_pins = READ_INT();
 			ENSURE(num_pins >= 0);
 			continue;
 		}
 		if (strstr(line, "NAILS:") == line) {
 			current_block = 5;
 			p += 6; // Skip "NAILS:"
-			LOAD_INT(num_nails);
+			num_nails = READ_INT();
 			ENSURE(num_nails >= 0);
 			continue;
 		}
@@ -99,8 +90,8 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 			case 1: { // Format
 				ENSURE(format.size() < num_format);
 				BRDPoint point;
-				LOAD_INT(point.x);
-				LOAD_INT(point.y);
+				point.x = READ_INT();
+				point.y = READ_INT();
 				ENSURE(point.x <= max.x);
 				ENSURE(point.y <= max.y);
 				format.push_back(point);
@@ -109,8 +100,8 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 			case 2: { // Nets
 				ENSURE(nets.size() < num_nets);
 				int id;
-				LOAD_INT(id);
-				LOAD_STR(nets[id]);
+				id = READ_INT();
+				nets[id] = READ_STR();
 			} break;
 
 			case 3: { // PARTS
@@ -118,13 +109,13 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 				BRDPart part;
 				int side;
 
-				LOAD_STR(part.name);
-				LOAD_INT(part.p1.x);
-				LOAD_INT(part.p1.y);
-				LOAD_INT(part.p2.x);
-				LOAD_INT(part.p2.y);
-				LOAD_INT(part.end_of_pins); // Warning: not end but beginning in this format
-				LOAD_INT(side);
+				part.name = READ_STR();
+				part.p1.x = READ_INT();
+				part.p1.y = READ_INT();
+				part.p2.x = READ_INT();
+				part.p2.y = READ_INT();
+				part.end_of_pins = READ_INT(); // Warning: not end but beginning in this format
+				side = READ_INT();
 				if (side == 1)
 					part.type = 10; // SMD part on top
 				else if (side == 2)
@@ -138,10 +129,10 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 				BRDPin pin;
 				int netid, side;
 
-				LOAD_INT(pin.pos.x);
-				LOAD_INT(pin.pos.y);
-				LOAD_INT(netid);
-				LOAD_INT(pin.side);
+				pin.pos.x = READ_INT();
+				pin.pos.y = READ_INT();
+				netid = READ_INT();
+				pin.side = READ_INT();
 
 				try {
 					pin.net = nets.at(netid);
@@ -158,12 +149,12 @@ BRD2File::BRD2File(const char *buf, size_t buffer_size) {
 				ENSURE(nails.size() < num_nails);
 				BRDNail nail;
 				int netid;
-				LOAD_INT(nail.probe);
-				LOAD_INT(nail.pos.x);
-				LOAD_INT(nail.pos.y);
-				LOAD_INT(netid);
+				nail.probe = READ_INT();
+				nail.pos.x = READ_INT();
+				nail.pos.y = READ_INT();
+				netid = READ_INT();
 				nail.net = nets.at(netid);
-				LOAD_INT(nail.side);
+				nail.side = READ_INT();
 				nails.push_back(nail);
 
 			} break;
