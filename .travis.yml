@@ -9,7 +9,7 @@ matrix:
     env: DEPLOY=yes DEPLOY_DEB=yes
   - os: osx
     compiler: clang
-    env: DEPLOY=yes MACOSX_DEPLOYMENT_TARGET=10.7
+    env: DEPLOY=yes MACOSX_DEPLOYMENT_TARGET=10.7 CXXFLAGS="-stdlib=libc++"
   - os: linux
     compiler: gcc
     env: CROSS=mingw64 DEPLOY=yes
@@ -67,7 +67,7 @@ before_deploy: |-
 deploy:
   provider: releases
   api_key:
-    secure: moFwXyAl3mTnYx2RY3kYJ9cutRaEiQrCurkwSFkPsFBqFJQpSG5ld72W1JEoQqlrJBeLEix2rtY9XRfQWGKTxuqJbdz1S7hyA5+Oo4HUYZfDkp7/nG7aIzql1G+rheSP7fbq4XAjTPyVbiYfVS/hh6RuZ/E11Zp33PdtQoenvFJYZnL/0UxN9cVmKWgE7vHzOszfuvPM21odOTyoZbUfZHZlYtR0xbY/mqoUFmcFbH+7H6pn3PINdtoycYq/TfPtxrHmLOlysWdABtbK+fdjneeg4ZaK3Rg7uAnNOrI8h5vOWuP0kj2YTc9aDmMgCeunPncTDBU3h6qL/DGN7BDzsHsBdEk9iuxX+coUe+3RQbRoy36m4RfzeEHZJNVCLu4yhZ5NzjR28QZxpfKGc9Jg8OHL9T3P2KFISjJX1bJ+d5xBbbcewe1KsAzG7zokHNEdzPMZSU5iOO+bamsjZ1SIm2dzcPjwpxSoZSL+2ZCurhZgEyKydBzRSFeDCHaifYv6rM98jZLcmDp0KZFzY07OrrgPbAoZFsICEPnpYA57VN7EPG0G7t3iGqcyCvr5E5A5ZUe7bwA3mqY1/0QPkZQQaSXeHbT45mlAEMBZRixLBgFOvCSq4U1O6cibAwBT+qQ8Xq6D3vJjhmodzwHz1aaPAlf/tm1LZguZf86TPjWrg5U=
+    secure: GMwaLDv8s6KSkndBK7vfa9bkd4Opx/zNNXd0046cErGCwhtWNtU8hqcsJi0KrlO36nozDYoyDGjoXTLMYr4myY9gSRol2JGHHyQecXxYvb28QioSAeTeYa9lFcV0N7bGynMszb8ZC6dJJ4myD3panKe7dHgQz+5w+m5KedLWRNgArUE+OfeZm01gy88U6nEkt5oMsUZSW09q4x23V9I+vt+uljnJ10lNPqMoqZycwvKJYQTzs2BABbyWfHIp1S1ocnuxYALakGPwEupwJeZ55qWkgb9gXdKzOqurqTyWnRY96+XPNeyEpj+qcr1N7Q4pvOSXo0E0hBGjgUY49K8dgAC2xl5hqfFpMj9p32Z1LoOAfMtsg6pvWkW5qfpIofZZQgL72DTeHGvUyQf1WmDFaCql5ZNHI+kYKFlkefzGkJkmvnJcCHat1LpvlQ3iDex8y7ttUUva/N0jP/GnsY+8gw5gBZ4cLYxlKoooU9ETgrWHB2JZmO3lxEDKakHIUE5z+mX6VA32TsGlPB/Ajt0tCNlMZPI3YKs1Eww8DaqtlctKwnjQu0AeRhwqIZtEn9mYFrzGJDLZasVs7kBEkBzGWcEo/SaeJoTFSEd/jYlYf3jTu2s0trwu9GO0BzAIVGIzmGBq2jhb8rbzwIj0Rv2EM7oe4eUuislLNHwVVkW5gQs=
   file_glob: true
   file: "${DEPLOY_FILES}"
   skip_cleanup: true
