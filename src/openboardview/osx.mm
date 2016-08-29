@@ -14,11 +14,7 @@ char *show_file_picker() {
 		filename = std::string([[nsurl path] UTF8String]);
 	}
 
-	size_t len = filename.length();
-	char *path = (char *)malloc(len+1);
-	memcpy(path, filename.c_str(), len+1);
-
-	return path;
+	return filename;
 }
 #endif
 
