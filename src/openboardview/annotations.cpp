@@ -61,7 +61,6 @@ int Annotations::Load(void) {
 	std::string sqlfn = filename;
 	auto pos = sqlfn.rfind('.');
 	if (pos != std::string::npos) sqlfn[pos] = '_';
-//	sqlfn.replace(sqlfn.rfind('.'), 1, '_');
 	sqlfn += ".sqlite3";
 
 	sqldb = nullptr;

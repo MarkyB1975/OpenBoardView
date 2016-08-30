@@ -180,6 +180,7 @@ const std::string get_font_path(const std::string &name) {
 }
 #endif
 
+#ifndef __APPLE__
 // Return an environment variable value in an std::string
 const std::string get_env_var(const std::string varname) {
 	std::string envVar;
@@ -210,7 +211,6 @@ bool create_dirs(const std::string &path) {
 	return true;
 }
 
-#ifndef __APPLE__
 const std::string get_user_dir(const UserDir userdir) {
 	std::string path;
 	std::string envVar;

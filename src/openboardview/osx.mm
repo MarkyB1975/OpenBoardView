@@ -5,7 +5,7 @@
 #import <Cocoa/Cocoa.h>
 
 #ifndef ENABLE_GTK
-char *show_file_picker() {
+const std::string show_file_picker() {
 	std::string filename;
 	NSOpenPanel *op = [NSOpenPanel openPanel];
 
