@@ -52,7 +52,7 @@ install: |-
 
 script: |-
   if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
-  ./build.sh
+  ./build.sh || exit 1
   if [ "$DEPLOY_DEB" == "yes" ]
   then
     pushd release_build
