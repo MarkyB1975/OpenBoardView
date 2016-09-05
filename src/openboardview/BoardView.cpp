@@ -3552,14 +3552,11 @@ void BoardView::Mirror(void) {
 		for (int i = 0; i < part->hull_count; i++) {
 			part->hull[i].x = max.x -part->hull[i].x;
 		}
-
 	}
 
 	for (auto &ann : m_annotations.annotations) {
 		ann.x = max.x -ann.x;
 	}
-
-
 }
 
 void BoardView::SetTarget(float x, float y) {
