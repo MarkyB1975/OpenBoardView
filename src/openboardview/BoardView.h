@@ -186,6 +186,8 @@ struct BoardView {
 
 	bool HighlightedPinIsHovered(void);
 	Pin *m_pinHighlightedHovered = nullptr;
+	Pin *currentlyHoveredPin        = nullptr;
+	Component *currentlyHoveredPart = nullptr;
 
 	ImVec2 m_showContextMenuPos;
 
@@ -253,6 +255,7 @@ struct BoardView {
 	void Update();
 	void HandleInput();
 	void RenderOverlay();
+	void DrawPartTooltips(ImDrawList *draw);
 	void DrawPinTooltips(ImDrawList *draw);
 	void DrawAnnotations(ImDrawList *draw);
 	void DrawOutline(ImDrawList *draw);
