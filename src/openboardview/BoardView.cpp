@@ -3198,20 +3198,21 @@ void BoardView::DrawPartTooltips(ImDrawList *draw) {
 				float dist = dx * dx + dy * dy;
 				if ((dist < (pin->diameter * pin->diameter))) {
 
-			draw->AddCircle(CoordToScreen(pin->position.x, pin->position.y), pin->diameter * m_scale, m_colors.pinHaloColor, 32, pinHaloThickness);
+				draw->AddCircle(CoordToScreen(pin->position.x, pin->position.y),
+				                pin->diameter * m_scale,
+				                m_colors.pinHaloColor,
+				                32,
+				                pinHaloThickness);
 			ImGui::PushStyleColor(ImGuiCol_Text, ImColor(m_colors.annotationPopupTextColor));
 			ImGui::PushStyleColor(ImGuiCol_PopupBg, ImColor(m_colors.annotationPopupBackgroundColor));
 			ImGui::BeginTooltip();
-				ImGui::Text("TP[%s]%s",
-				            pin->number.c_str(),
-				            pin->net->name.c_str());
+				ImGui::Text("TP[%s]%s", pin->number.c_str(), pin->net->name.c_str());
 			ImGui::EndTooltip();
 			ImGui::PopStyleColor(2);
 					break;
 				} // if in the required diameter
 			}
 		}
-
 
 	currentlyHoveredPart = nullptr;
 	for (auto part : m_board->Components()) {
@@ -3271,7 +3272,12 @@ void BoardView::DrawPartTooltips(ImDrawList *draw) {
 
 			draw->ChannelsSetCurrent(kChannelAnnotations);
 
-			if (currentlyHoveredPin) draw->AddCircle(CoordToScreen(currentlyHoveredPin->position.x, currentlyHoveredPin->position.y), currentlyHoveredPin->diameter * m_scale, m_colors.pinHaloColor, 32, pinHaloThickness);
+			if (currentlyHoveredPin)
+				draw->AddCircle(CoordToScreen(currentlyHoveredPin->position.x, currentlyHoveredPin->position.y),
+				                currentlyHoveredPin->diameter * m_scale,
+				                m_colors.pinHaloColor,
+				                32,
+				                pinHaloThickness);
 			ImGui::PushStyleColor(ImGuiCol_Text, ImColor(m_colors.annotationPopupTextColor));
 			ImGui::PushStyleColor(ImGuiCol_PopupBg, ImColor(m_colors.annotationPopupBackgroundColor));
 			ImGui::BeginTooltip();
@@ -3285,9 +3291,7 @@ void BoardView::DrawPartTooltips(ImDrawList *draw) {
 			}
 			ImGui::EndTooltip();
 			ImGui::PopStyleColor(2);
-
 		}  
-
 
 	} // for each part on the board
 }
