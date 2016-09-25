@@ -1,76 +1,15 @@
-### src/CMakeLists.txt ###
-#
-#
+## gl3w ##
+add_library(gl3w SHARED gl3w/src/gl3w.c)
+target_include_directories(gl3w PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/gl3w/include)
+install(TARGETS gl3w DESTINATION ${INSTALL_LIBRARY_DIR})
 
-# SOURCES to be added to main target
-set(SOURCES
-	main.cpp
+## imgui ##
 
-	BoardView.cpp
-	BRDBoard.cpp
-	BRDFile.cpp
-	NetList.cpp
-	PartList.cpp
+add_library(imgui SHARED imgui/imgui.cpp imgui/imgui_draw.cpp)
+install(TARGETS imgui DESTINATION ${INSTALL_LIBRARY_DIR})
 
-	imgui_impl_dx9.cpp
-	platform_win32.cpp)
+## utf8.h ##
+set(UTF8H_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/utf8")
 
-## Add main target
-add_executable(${PROJECT_NAME}
-	WIN32
-	${SOURCES}
-	${ICON})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
-	${LIBS}
-	${PLATFORM_LIBS}
-)
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${INCLUDE_DIRS}
-)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-		CXX_STANDARD 11       # Use C++11
-)
-
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-	# Define metadata
-	"-DPROJECT_NAME=\"${PROJECT_NAME}\""
-	"-DPRETTY_NAME=\"${PRETTY_NAME}\""
-	"-DPROJECT_VERSION=\"${PROJECT_VERSION}\""
-	"-DPROJECT_VENDOR=\"${CPACK_PACKAGE_VENDOR}\""
-	"-DPROJECT_URL=\"${PROJECT_URL}\"")
-
-if (MSVC)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE
-		-D_CRT_SECURE_NO_WARNINGS
-		-D_UNICODE -DUNICODE)
-endif()
-
-# Warnings
-set(SHOW_WARNINGS "normal" CACHE STRING "Compile time warnings to show. Can be \"normal\", \"all\" or \"all_extra\".")
-set_property(CACHE SHOW_WARNINGS PROPERTY STRINGS "normal" "all" "all_extra")
-option(WARNINGS_ARE_ERRORS "Compile time warnings are treated as errors."
-	OFF)
-if(SHOW_WARNINGS STREQUAL "all")
-	if(MSVC)
-		set(WARN_FLAGS "-W4")
-	endif()
-elseif(SHOW_WARNINGS STREQUAL "all_extra")
-	if(MSVC)
-		set(WARN_FLAGS "-Wall")
-	endif()
-endif()
-if(WARNINGS_ARE_ERRORS)
-	if(MSVC)
-		set(WARN_FLAGS ${WARN_FLAGS} "-WX")
-	endif()
-endif()
-if(WARN_FLAGS)
-	target_compile_options(${PROJECT_NAME} PRIVATE ${WARN_FLAGS})
-endif()
-
-# Inastll/packageing location
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${INSTALL_BIN_DIR})
+add_subdirectory(openboardview)
