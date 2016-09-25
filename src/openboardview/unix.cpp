@@ -9,7 +9,9 @@
 #include <assert.h>
 
 #ifndef __APPLE__
+#if 0
 #include <fontconfig/fontconfig.h>
+#endif
 #include <gtk/gtk.h>
 #endif  // ! __APPLE__
 
@@ -90,6 +92,7 @@ char *show_file_picker() {
 	return path;
 }
 
+#if 0
 // Thanks to http://stackoverflow.com/a/14634033/1447751
 const std::string get_font_path(const std::string &name) {
 	std::string path;
@@ -121,6 +124,7 @@ const std::string get_font_path(const std::string &name) {
 	FcPatternDestroy(pat);
 	return path;
 }
+#endif
 
 #endif // ! __APPLE__
 
